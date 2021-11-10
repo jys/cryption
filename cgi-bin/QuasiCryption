@@ -51,7 +51,7 @@ if moins: clefNum-= 1
 clef = str(clefNum)
 
 if soumettre or plus or moins: 
-    qcCryption = QcCryption('ressources/Lescur2')
+    qcCryption = QcCryption('../ressources/Lescur2')
     if ejtat == 'enCryptage':
         texteCryptej = f'««« texte quasi-crypté, dejcryptable sur https://latejcon.art à la rubrique &quot;la quasi-cryption&quot; (mistera parentezo kun numero {clefNum + 2236}) »»»\n'
         texteCryptej += qcCryption.cryptage(menuPropos, clefNum)
