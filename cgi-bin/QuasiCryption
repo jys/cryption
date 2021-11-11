@@ -106,6 +106,7 @@ print("""
 print("""
     <body>
     <form action="QuasiCryption" method="post">
+    <img alt="../ressources/quasiCryption-100.png" src="../ressources/quasiCryption-100.png"  style="float:right;"/> 
     <table><tr><td><sti>la quasi-cryption de </sti></td><td><img src="../ressources/echiquierLatejcon4-200T.png"/></td></tr></table>
 """)
 
