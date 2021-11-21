@@ -127,6 +127,7 @@ def construit(racine):
         (grform, grlem, macrocat, macro_micro, genre, nombre, personne, temps) = lesFormes.pop()
         if macrocat == L_V and macro_micro not in (L_VERBE_PRINCIPAL_PARTICIPE_PASSE, L_VERBE_PRINCIPAL_INFINITIF): continue
         if macrocat == L_ADV and not grform.endswith('ment'): continue
+        if macrocat == L_ADJ: continue
         if grform in formesAmbiguees: continue
         if grlem in lemmesAmbiguus: continue
         macrocat2 = genre2 = nombre2 = personne2 = temps2 = 0
@@ -328,7 +329,7 @@ def trouveFormes(base):
             AND NOT grform.graphie LIKE "%'%" 
             AND NOT grform.graphie LIKE "% %" 
             AND CHAR_LENGTH(grform.graphie) > 5 
-            AND micro.macrocat IN ({L_NC},{L_ADV},{L_V});
+            AND micro.macrocat IN ({L_NC},{L_ADV},{L_V},{L_ADJ});
         ''')
     return rejsultat
 
