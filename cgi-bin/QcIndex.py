@@ -34,7 +34,7 @@ def main():
 
 def analyse(nomFichierQc):
     qcIndex = QcIndex(nomFichierQc)
-    qcIndex.analyseIndex(nomFichierQc)
+    qcIndex.afficheFichierIndex()
     
     
 ######################################################################################
@@ -105,17 +105,18 @@ class QcIndex(QcFichier):
             self.tailleSpejcifique = self.litNombre3()
             # adresse dejbut spejcifique 
             self.dejbutSpejcifique = self.tell()
+            # lit la partie identification
+            self.seek(-TAILLE_IDENTIFICATION, FIN)
+            #<flagIdentification=53> <maxIdentifiant> <identifieurUnique>
+            if self.litNombre1() != FLAG_IDENTIFICATION: 
+                raise Exception('{} : pas FLAG_IDENTIFICATION à {:08X}'.format(self.nomQcFichier, self.tell() -1))
+            self.maxIdentifiant = self.litNombre4()
+            self.identifieurUnique = self.litNombre4()
     
     #############################################################   
     # retourne l'identification du fichier
     def donneIdentificationFichier(self):
-        #<flagIdentification=53> <maxIdentifiant> <identifieurUnique>
-        self.seek(-TAILLE_IDENTIFICATION, FIN)
-        if self.litNombre1() != FLAG_IDENTIFICATION: 
-            raise Exception('{} : pas FLAG_IDENTIFICATION à {:08X}'.format(self.nomQcFichier, self.tell() -1))
-        maxIdentifiant = self.litNombre4()
-        identifieurUnique = self.litNombre4()
-        return (maxIdentifiant, identifieurUnique)
+        return (self.maxIdentifiant, self.identifieurUnique)
 
     #############################################################   
     # ejcrit l'identification ah la fin du fichier
@@ -138,45 +139,18 @@ class QcIndex(QcFichier):
         return (self.nombreEntrejes * self.tailleEntreje) + TAILLE_DEJBUTINDEX
         
     #############################################################   
-    # analyse le fichier index, renvoie True si c'est bon
-    def analyseIndex(self, trace):
-        try:
-            cestBon = True
-            # lit la partie fixe du bloc d'index
-            self.seek(0, DEJBUT)
-            # <flagIndexej=47> <tailleEntreje> <nombreEntrejes>
-            if self.litNombre1() != FLAG_INDEXEJ: 
-                    raise Exception('{} : pas FLAG_INDEXEJ à {:08X}'.format(self.nomQcFichier, self.tell() -1))
-            tailleEntreje = self.litNombre1()
-            nombreEntrejes = self.litNombre3()
-            if trace: 
-                print('TAILLE ENTRÉES             : ', tailleEntreje)
-                print("NOMBRE D'ENTRÉES           : ", nombreEntrejes)
-                print ("=============")
-            # <flagSpejcifique=59> <tailleSpejcifique> <donnejesSpejcifiques>
-            adrBlocSpejcifique = tailleEntreje * nombreEntrejes + TAILLE_DEJBUTINDEX
-            self.seek(adrBlocSpejcifique, DEJBUT)
-            if self.litNombre1() != FLAG_SPEJCIFIQUE: 
-                raise Exception('{} : pas FLAG_SPEJCIFIQUE à {:08X}'.format(self.nomQcFichier, self.tell() -1))
-            tailleSpejcifique = self.litNombre3()
-            if trace: 
-                print('TAILLE SPÉCIFIQUES         : ', tailleSpejcifique)
-                print ("=============")
-            # <flagIdentification=53> <maxIdentifiant> <identifieurUnique>
-            self.seek(-TAILLE_IDENTIFICATION, FIN)
-            if self.litNombre1() != FLAG_IDENTIFICATION: 
-                raise Exception('{} : pas FLAG_IDENTIFICATION à {:08X}'.format(self.nomQcFichier, self.tell() -1))
-            maxIdentifiant = self.litNombre4()
-            identifieurUnique = self.litNombre4()
-            if trace: 
-                print('MAX IDENTIFIANTS           : ', maxIdentifiant)
-                print("IDENTIFIEUR UNIQUE         : ", identifieurUnique)
-                print("                           : ", time.ctime(int(identifieurUnique)))
-                print ("=============")
-        except Exception as exc: 
-            cestBon = False
-            if trace: print ('ERREUR :', exc.args[0])
-        return cestBon
+    # affiche les dejtails du fichier index
+    def afficheFichierIndex(self):
+        print('TAILLE ENTRÉES             : ', self.tailleEntreje)
+        print("NOMBRE D'ENTRÉES           : ", self.nombreEntrejes)
+        print ("=============")
+        print('TAILLE SPÉCIFIQUES         : ', self.tailleSpejcifique)
+        print('DÉBUT SPÉCIFIQUES          : ', self.dejbutSpejcifique)
+        print ("=============")
+        print('MAX IDENTIFIANTS           : ', self.maxIdentifiant)
+        print("IDENTIFIEUR UNIQUE         : ", self.identifieurUnique)
+        print("                           : ", time.ctime(int(self.identifieurUnique)))
+        print ("=============")
         
         
        

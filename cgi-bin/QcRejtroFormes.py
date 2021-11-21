@@ -13,16 +13,22 @@ def usage():
     script = '$PY/' + path.basename(sys.argv[0])
     print (f"""© l'ATEJCON.
 Analyse le fichier plat des rejtroformes du système Qc.
+Donne les formes et les propriétés grammaticales d'un lemme
 
-usage   : {script} <fichier Qc>
+usage   : {script} <fichier Qc> [ "analyse" | "formes" <forme> ]
 exemple : {script} Latejcon.qcformes
+exemple : {script} Latejcon.qcformes form 13450
 """)
     
 def main():
     try:
         if len(sys.argv) < 2 : raise Exception()
         nomFichierQc = path.abspath(sys.argv[1])
-        analyse(nomFichierQc)
+        action = 'analyse' 
+        if len(sys.argv) > 2 : action = sys.argv[2]
+        numejroLemmeCat = 0
+        if len(sys.argv) > 3 : numejroLemmeCat = int(sys.argv[3])
+        analyse(nomFichierQc, action, numejroLemmeCat)
     except Exception as exc:
         if len(exc.args) == 0: usage()
         else:
@@ -32,10 +38,15 @@ def main():
             raise
         sys.exit()
 
-def analyse(nomFichierQc):
+def analyse(nomFichierQc, action, numejroLemmeCat):
     qcRejtroFormes = QcRejtroFormes(nomFichierQc)
-    numejrosIdentifiants = qcRejtroFormes.vidage()
-    print(f'{len(numejrosIdentifiants)} mots-identifiants trouvés')
+    if action.startswith('ana'):
+        qcRejtroFormes.afficheFichierRejtroFormes()
+    elif action.startswith('form'):
+        donnejes = qcRejtroFormes.trouveDonnejes(numejroLemmeCat)
+        for(identifiantForme, genre, nombre, personne, temps) in donnejes:
+            print(f'{identifiantForme}, {genre}, {nombre}, {personne}, {temps}')
+    qcRejtroFormes.close()
     
 ######################################################################################
 # <donnejesIndexejes>     ::= <dejfinitionLemme>
@@ -62,8 +73,7 @@ def analyse(nomFichierQc):
 CAT_ADV = 0
 CAT_SUBM = 1
 CAT_SUBF = 2
-CAT_ADJ = 3
-CAT_VER = 4 
+CAT_VER = 3 
 # <flagIdLemme=23>(1) <identifiant>(3) <nombreDejfinitions>(1) <adresseDejfinitions>(4) = 9
 TAILLE_ENTREJE = 9
 # <flagLimites=31>(1) <nombreLimites>(1)
@@ -143,6 +153,31 @@ class QcRejtroFormes(QcIndex):
             self.ejcritNombre3(limite)
         
     ################################
+    # retourne l'ensemble des donnejes d'une rejtroforme
+    def trouveDonnejes(self, numejroLemmeCat):
+        adresseIndex = self.donneAdresseIndex(numejroLemmeCat)
+        self.seek(adresseIndex, DEJBUT)
+        # <flagIdLemme=23>(1) <identifiant>(3) <nombreDejfinitions>(1) <adresseDejfinitions>(4)
+        if self.litNombre1() != FLAG_IDLEMME: 
+            raise Exception('{} : pas FLAG_IDLEMME à {:08X}'.format(self.nomQcFichier, self.tell() -1))
+        if self.litNombre3() != numejroLemmeCat:
+            raise Exception('{} : incohérence à {:08X}'.format(self.nomQcFichier, self.tell() -3))
+        nombreDejfinitions = self.litNombre1()
+        adresseDejfinitions = self.litNombre4()
+        # construit le rejsultat
+        rejsultat = []
+        self.seek(adresseDejfinitions, DEJBUT)
+        for ii in range(nombreDejfinitions):
+            # { <identifiantForme> <genre> <nombre> <personne> <temps> }
+            identifiantForme = self.litNombre3()
+            genre = self.litNombre1()
+            nombre = self.litNombre1()
+            personne = self.litNombre1()
+            temps = self.litNombre1()
+            rejsultat.append((identifiantForme, genre, nombre, personne, temps))
+        return rejsultat
+        
+    ################################
     # trouve la forme dejcaleje avec les mesmes propriejtejs, 0 si pas trouveje
     def trouveFormesDejcalejes(self, propriejtej, dejcalage):
         (numejroLemmeCat, genre, nombre, personne, temps) = propriejtej
@@ -159,27 +194,40 @@ class QcRejtroFormes(QcIndex):
         # 143 +7 -> 150, 150 - 150 + 100 = 100
         if numejroDejcalej >= self.numejrosMax[index]:
             numejroDejcalej += self.numejrosMax[index -1] - self.numejrosMax[index]
-        # trouve la forme dejcaleje
-        adresseIndex = self.donneAdresseIndex(numejroDejcalej)
-        self.seek(adresseIndex, DEJBUT)
-        # <flagIdLemme=23>(1) <identifiant>(3) <nombreDejfinitions>(1) <adresseDejfinitions>(4)
-        if self.litNombre1() != FLAG_IDLEMME: 
-            raise Exception('{} : pas FLAG_IDLEMME à {:08X}'.format(self.nomQcFichier, self.tell() -1))
-        if self.litNombre3() != numejroDejcalej:
-            raise Exception('{} : incohérence à {:08X}'.format(self.nomQcFichier, self.tell() -3))
-        nombreDejfinitions = self.litNombre1()
-        adresseDejfinitions = self.litNombre4()
-        self.seek(adresseDejfinitions, DEJBUT)
+        # trouve les donnejes de la forme dejcaleje
         rejsultat = []
-        for ii in range(nombreDejfinitions):
-            # { <identifiantForme> <genre> <nombre> <personne> <temps> }
-            identifiantDejcalej = self.litNombre3()
-            genreDejcalej = self.litNombre1()
-            nombreDejcalej = self.litNombre1()
-            personneDejcalej = self.litNombre1()
-            tempsDejcalej = self.litNombre1()
-            if (genreDejcalej, nombreDejcalej, personneDejcalej, tempsDejcalej) == (genre, nombre, personne, temps): rejsultat.append(identifiantDejcalej)
-        return rejsultat
+        for (identifiantDejcalej, genreDejcalej, nombreDejcalej, personneDejcalej, tempsDejcalej) in self.trouveDonnejes(numejroDejcalej):
+           if (genreDejcalej, nombreDejcalej, personneDejcalej, tempsDejcalej) == (genre, nombre, personne, temps): rejsultat.append(identifiantDejcalej)
+        return rejsultat 
+        
+    ################################
+    # affiche les dejtails du fichier
+    def afficheFichierRejtroFormes(self):
+        self.afficheFichierIndex()
+        longueurs = {}
+        total = 0
+        for numejroLemmeCat in range(self.nombreEntrejes):
+            longueur = len(self.trouveDonnejes(numejroLemmeCat))
+            if longueur not in longueurs: longueurs[longueur] = 0
+            longueurs[longueur] +=1
+            total += longueur
+        print ("=============")
+        print('NOMBRE DE LEMMES           : ', self.nombreEntrejes)
+        print("NOMBRE DE DONNÉES          : ", total)
+        longueursListe = list(longueurs.items())
+        longueursListe.sort()
+        for (longueur, nombre) in longueursListe:
+            print(f'{longueur} : {nombre}')
+        print('NUMÉROS MAX                : ', self.numejrosMax)    
+        print ("=============")
+        # vejrifie la cohejrence de l'ensemble
+        for numejroLemmeCat in range(self.nombreEntrejes):
+            for (idForme, genre, nombre, personne, temps) in self.trouveDonnejes(numejroLemmeCat):
+                propriejtej = (numejroLemmeCat, genre, nombre, personne, temps)
+                if len(self.trouveFormesDejcalejes(propriejtej, 1)) != 1:
+                    print(f'INCOHÉRENCE : {numejroLemmeCat} et {numejroLemmeCat +1}')
+                
+        
             
 if __name__ == '__main__':
     main()

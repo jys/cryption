@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+__author__ = "jys"
+__copyright__ = "Copyright (C) 2021 LATEJCON"
 
 from os import path, environ
 import datetime
-import sys
 import cgi
-from copy import deepcopy
+import re
 from QcCryption import QcCryption
 import cgitb
 cgitb.enable()
@@ -27,6 +28,7 @@ soumettre = form.getvalue('soumettre')
 modifier = form.getvalue('modifier')
 plus = form.getvalue('plus')
 moins = form.getvalue('moins')
+zejro = form.getvalue('zejro')
 texteSaisi = form.getvalue('texteSaisi') or ''
 menuPropos = form.getvalue('menuPropos') or ''
 texteCryptej = form.getvalue('texteCryptej')  or ''
@@ -35,29 +37,34 @@ texteCryptej = form.getvalue('texteCryptej')  or ''
 if ejtat == 'enSaisie' and soumettre:
     menuPropos = texteSaisi
     ejtat = 'enCryptage'
-    clef = '7'
-    clefNum = int(clef)
-    if '««« texte' in menuPropos and '»»»' in menuPropos:
-        # trouve la clef
-        finClef = menuPropos.find(') »»»')
-        debClef = menuPropos[:finClef].rfind(' ')
-        if menuPropos[debClef+1:finClef].isnumeric():
-            clefNum = 2236 - int(menuPropos[debClef+1:finClef])
+    # le re ne sait pas faire du multilignes
+    debParenthehse = menuPropos.find('«««')
+    finParenthehse = menuPropos.find('»»»')
+    if debParenthehse != -1 and finParenthehse != -1:
+        texteSeul = menuPropos[:debParenthehse] + menuPropos[finParenthehse +3:]
+        parenthehse = menuPropos[debParenthehse:finParenthehse +3]
+        parties = re.match(u'.* ([0-9]+)\).*', parenthehse, re.UNICODE)
+        if parties :
+            clefNum = 2236 - int(parties.group(1))
             ejtat = 'enDejcryptage'
+            versionOk = re.match(u'.*mistera parentezo kun stranga latejcona nombro.*', parenthehse, re.UNICODE)
 
 if modifier: ejtat = 'enSaisie'
 if plus: clefNum += 1
 if moins: clefNum-= 1
+if zejro: clefNum = 7
 clef = str(clefNum)
 
-if soumettre or plus or moins: 
-    qcCryption = QcCryption('../ressources/Lescur2')
+if soumettre or plus or moins or zejro: 
+    #qcCryption = QcCryption('ressources/Latejcon')     #local
+    qcCryption = QcCryption('../ressources/Latejcon')   #canap de Dom
     if ejtat == 'enCryptage':
-        texteCryptej = f'««« texte quasi-crypté, dejcryptable sur https://latejcon.art à la rubrique &quot;la quasi-cryption&quot; (mistera parentezo kun numero {clefNum + 2236}) »»»\n'
+        texteCryptej = f'««« texte quasi-crypté, dejcryptable sur https://latejcon.art à la rubrique &quot;la quasi-cryption&quot; (mistera parentezo kun stranga latejcona nombro {clefNum + 2236}) »»»\n'
         texteCryptej += qcCryption.cryptage(menuPropos, clefNum)
     else:
-        finClef = menuPropos.find(') »»»')
-        texteCryptej = qcCryption.cryptage(menuPropos[finClef+6:], clefNum)
+        texteCryptej = qcCryption.cryptage(texteSeul, clefNum)
+        if versionOk: texteDejcryptage = 'Et voici le menu propos originel :'
+        else: texteDejcryptage = 'Malheureusement, la clef de dejcryptage a ejté dejfinitivement perdue... Nous sommes dejsolejs.'
         
 # la trace
 if soumettre: texte = ' '.join(menuPropos.splitlines()).replace('|', ' ')
@@ -123,7 +130,7 @@ if modedEmploi:
         <br/>La quasi-cryption de l'Atejcon est quasi parce qu'elle utilise un cryptage symejtrique à clef publique. Quant à la clef de cryptage, c'est un hommage direct, franc, massif et enthousiaste au S+7 oulipien de Jean Lescure. 
         <ul>
         <li>Pour quasi-encrypter un menu propos en français, entrez-le ou soumettez-le par un habile copier-coller dans la zone ci-dessous (<mi6>il s'affiche en vert</mi6>) puis actionnez le quasi-encryptage par <i>le bouton <b>soumettre</b></i>. Le texte quasi-encrypté s'affiche à la place du menu propos (<mi5>il s'affiche en rouge</mi5>). </li>
-        <li><i>Les boutons <b>+ et -</b></i> permettent de changer la clef et d'avoir un nouveau cryptage et donc un nouveau texte. Lorsque la satisfaction est là, sauvegardez le texte quasi-encrypté par un copier-coller et envoyer le à son destinataire. Attention, il faut bien envoyer la premiehre ligne avec tous ses guillemets (<b>«««&nbsp;...&nbsp;»»»</b>) !</li>
+        <li><i>Les boutons <b>+</b>, <b>-</b> et <b>0</b></i> permettent de changer la clef et d'avoir un nouveau cryptage et donc un nouveau texte. Lorsque la satisfaction est là, sauvegardez le texte quasi-encrypté par un copier-coller et envoyer le à son destinataire. Attention, il faut bien envoyer la premiehre ligne avec tous ses guillemets (<b>«««&nbsp;...&nbsp;»»»</b>) !</li>
         <li>Pour quasi-dejcrypter un texte reçu et dusment reconnu comme quasi-encrypté par l'Atejcon (par la premiehre ligne avec tous ses guillemets), soumettez-le par un habile copier-coller dans la zone ci-dessous (<mi6>il s'affiche en vert</mi6>) puis actionnez le quasi-dejcryptage par <i>le bouton <b>soumettre</b></i>. Attention, il faut y mettre la premiehre ligne avec tous ses guillemets (<b>«««&nbsp;...&nbsp;»»»</b>) ! Le menu propos d'origine s'affiche à la place du texte encrypté (<mi7>il s'affiche en bleu</mi7>).</li>
         <li>Pour revenir à l'ejcran originel de saisie, actionnez <i>le bouton <b>modifier</b></i>.</li>
         </ul>
@@ -143,11 +150,12 @@ elif ejtat == 'enCryptage':
     print('<input type="submit" name="modifier" value="modifier" style="font-size: 16pt"/> le menu propos&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;')
     print('ajuster la <input type="submit" name="moins" value=" - " style="font-size: 16pt"/>')
     print(' clef ')
-    print('<input type="submit" name="plus" value=" + " style="font-size: 16pt"/> de quasi-cryptage')
+    print('<input type="submit" name="plus" value=" + " style="font-size: 16pt"/> de quasi-cryptage ')
+    print('<input type="submit" name="zejro" value=" 0 " style="font-size: 16pt"/>')
     print('</div>')
 else:
     print('<div id="af1">')
-    print('<p class="mi3">Le menu propos originel :<br/>')
+    print(f'<p class="mi3">{texteDejcryptage}<br/>')
     print(f'<textarea class="ta3" name="texteCalculej" readonly>{texteCryptej}</textarea><br/>')
     print('<input type="submit" name="modifier" value="modifier" style="font-size: 16pt"/> le message')
     print('</div>')

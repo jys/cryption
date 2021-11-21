@@ -13,16 +13,22 @@ def usage():
     script = '$PY/' + path.basename(sys.argv[0])
     print (f"""© l'ATEJCON.
 Analyse le fichier plat des formes du système Qc.
+Donne la lemmatisation et les propriétés grammaticales d'une forme
 
-usage   : {script} <fichier Qc>
+usage   : {script} <fichier Qc> [ "analyse" | "lemmatisation" <forme> ]
 exemple : {script} Latejcon.qcformes
+exemple : {script} Latejcon.qcformes lem 10636
 """)
     
 def main():
     try:
         if len(sys.argv) < 2 : raise Exception()
         nomFichierQc = path.abspath(sys.argv[1])
-        analyse(nomFichierQc)
+        action = 'analyse' 
+        if len(sys.argv) > 2 : action = sys.argv[2]
+        identifiantForme = 0
+        if len(sys.argv) > 3 : identifiantForme = int(sys.argv[3])
+        analyse(nomFichierQc, action, identifiantForme)
     except Exception as exc:
         if len(exc.args) == 0: usage()
         else:
@@ -32,10 +38,15 @@ def main():
             raise
         sys.exit()
 
-def analyse(nomFichierQc):
+def analyse(nomFichierQc, action, identifiantForme):
     qcFormes = QcFormes(nomFichierQc)
-    numejrosIdentifiants = qcFormes.vidage()
-    print(f'{len(numejrosIdentifiants)} mots-identifiants trouvés')
+    if action.startswith('ana'):
+        qcFormes.afficheFichierFormes()
+    elif action.startswith('lem'):
+        donnejes = qcFormes.trouveDonnejes(identifiantForme)
+        for (numejroLemmeCat, genre, nombre, personne, temps) in donnejes:
+            print(f'{numejroLemmeCat}, {genre}, {nombre}, {personne}, {temps}')
+    qcFormes.close()
     
 ######################################################################################
 # <donnejesIndexejes>     ::= <dejfinitionForme>
@@ -114,7 +125,10 @@ class QcFormes(QcIndex):
         adresseIndex = self.donneAdresseIndex(identifiantForme)
         self.seek(adresseIndex, DEJBUT)
         # <flagIdForme=17>(1) <identifiant>(3) <nombreDejfinitions>(1) <adresseDejfinitions>(4)
-        if self.litNombre1() != FLAG_IDFORME: 
+        flag = self.litNombre1()
+        # entreje inutiliseje = bizarre mais bon...
+        if flag == 0: return []
+        if flag != FLAG_IDFORME: 
             raise Exception('{} : pas FLAG_IDFORME à {:08X}'.format(self.nomQcFichier, self.tell() -1))
         if self.litNombre3() != identifiantForme:
             raise Exception('{} : incohérence à {:08X}'.format(self.nomQcFichier, self.tell() -3))
@@ -132,6 +146,30 @@ class QcFormes(QcIndex):
             temps = self.litNombre1()
             rejsultat.append((numejroLemmeCat, genre, nombre, personne, temps))
         return rejsultat
+        
+    ################################
+    # affiche les dejtails du fichier
+    def afficheFichierFormes(self):
+        self.afficheFichierIndex()
+        longueurs = {}
+        total = 0
+        vides = []
+        for identifiantForme in range(1, self.nombreEntrejes):
+            longueur = len(self.trouveDonnejes(identifiantForme))
+            if longueur == 0: vides.append(identifiantForme)
+            if longueur not in longueurs: longueurs[longueur] = 0
+            longueurs[longueur] +=1
+            total += longueur
+        print ("=============")
+        print('NOMBRE DE FORMES           : ', self.nombreEntrejes -1)
+        print("NOMBRE DE DONNÉES          : ", total)
+        longueursListe = list(longueurs.items())
+        longueursListe.sort()
+        for (longueur, nombre) in longueursListe:
+            print(f'{longueur} : {nombre}')
+        print ("=============")
+        print(vides)
+        
             
 if __name__ == '__main__':
     main()

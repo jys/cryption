@@ -66,6 +66,7 @@ L_COND_PRES = 1439
 #L_PASS_ANT = 1442
 #L_FUTUR_ANT = 1443
 #L_COND_PASS = 1444
+L_VERBE_PRINCIPAL_PARTICIPE_PASSE = 1561
 
 TAILLE_HASH = 100019
     
@@ -75,6 +76,12 @@ def construit(racine):
     # 1) trouve les lemmes idoines : id, macrocat, graphie 
     idslemmes = trouveIdsLemmes(base)
     print(f'{len(idslemmes)} lemmes idoines trouvés')
+    
+    # 2) compte les ids pour une mesme graphie
+    graphieIds = {}
+    for (idLemme, macrocat, graphieLemme) in idslemmes:
+        if graphieLemme not in graphieIds: graphieIds[graphieLemme] = 0
+        graphieIds[graphieLemme] +=1
     
     # 2) les regroupe par macrocat et trouve toutes leurs formes
     toutesLesGraphies = set()
@@ -86,10 +93,17 @@ def construit(racine):
     lemmesAdj = []
     lemmesVer = []
     for (idLemme, macrocat, graphieLemme) in idslemmes:
+        # si plusieurs lemmes pour la mesme graphie, ne prend pas 
+        if graphieIds[graphieLemme] != 1: continue
+        # trouve toutes les formes du lemme retenu
+        graphiesFormes = trouveGraphiesFormes(base, idLemme)
         if macrocat == L_ADV:
             # ejcarte les adverbes qui ne finissent pas par "ment"
             if not graphieLemme.endswith('ment'): continue
             lemmesAdv.append((graphieLemme, idLemme))
+            for (graphieForme, idForme, macroMicro) in graphiesFormes: 
+                toutesLesGraphies.add(graphieForme)
+                toutesLesFormes.append((idForme, graphieForme))            
         elif macrocat == L_NC:
             genres = trouveGenreSub(base, idLemme)
             # ejcarte les substantifs bi-genres
@@ -97,16 +111,21 @@ def construit(racine):
             if genres[0][0] == L_MASC: lemmesSubM.append((graphieLemme, idLemme))
             elif genres[0][0] == L_FEM: lemmesSubF.append((graphieLemme, idLemme))
             else: continue
+            for (graphieForme, idForme, macroMicro) in graphiesFormes: 
+                toutesLesGraphies.add(graphieForme)
+                toutesLesFormes.append((idForme, graphieForme))            
         elif macrocat == L_ADJ:
-            lemmesAdj.append((graphieLemme, idLemme))
+            continue
         elif macrocat == L_V:
-            lemmesVer.append((graphieLemme, idLemme))
+            # uniquement les participes passejs
+            verbeOk = False
+            for (graphieForme, idForme, macroMicro) in graphiesFormes: 
+                if macroMicro != L_VERBE_PRINCIPAL_PARTICIPE_PASSE: continue
+                toutesLesGraphies.add(graphieForme)
+                toutesLesFormes.append((idForme, graphieForme))            
+                verbeOk = True
+            if verbeOk: lemmesVer.append((graphieLemme, idLemme))
         else: raise Exception('ERREUR INTERNE 01')
-        # trouve toutes les formes du lemme retenu
-        graphiesFormes = trouveGraphiesFormes(base, idLemme)
-        for (graphieForme, idForme) in graphiesFormes: 
-            toutesLesGraphies.add(graphieForme)
-            toutesLesFormes.append((idForme, graphieForme))
     nombreLemmes = len(lemmesAdv) + len(lemmesSubM) + len(lemmesSubF) + len(lemmesAdj) + len(lemmesVer)
     print(f'{nombreLemmes} lemmes conservées')
     print(f'{len(toutesLesGraphies)} formes conservées')
@@ -151,11 +170,11 @@ def construit(racine):
     print(f'Création du {racine}.qcrejtroformes') 
     qcRejtroFormes = QcRejtroFormes(f'{racine}.qcrejtroformes', True, nombreLemmes)
     # l'ordre est obligatoirement CAT_ADV, CAT_SUBM, CAT_SUBF, CAT_ADJ, CAT_VER
-    ajouteSejrie(qcLexique, qcRejtroFormes, base, CAT_ADV, lemmesAdv, rejtroLemmeCats, ejquivalences)
-    ajouteSejrie(qcLexique, qcRejtroFormes, base, CAT_SUBM, lemmesSubM, rejtroLemmeCats, ejquivalences)
-    ajouteSejrie(qcLexique, qcRejtroFormes, base, CAT_SUBF, lemmesSubF, rejtroLemmeCats, ejquivalences)
-    ajouteSejrie(qcLexique, qcRejtroFormes, base, CAT_ADJ, lemmesAdj, rejtroLemmeCats, ejquivalences)
-    ajouteSejrie(qcLexique, qcRejtroFormes, base, CAT_VER, lemmesVer, rejtroLemmeCats, ejquivalences)
+    ajouteSejrie(qcLexique, qcRejtroFormes, base, CAT_ADV, lemmesAdv, rejtroLemmeCats, ejquivalences, toutesLesFormes)
+    ajouteSejrie(qcLexique, qcRejtroFormes, base, CAT_SUBM, lemmesSubM, rejtroLemmeCats, ejquivalences, toutesLesFormes)
+    ajouteSejrie(qcLexique, qcRejtroFormes, base, CAT_SUBF, lemmesSubF, rejtroLemmeCats, ejquivalences, toutesLesFormes)
+    ajouteSejrie(qcLexique, qcRejtroFormes, base, CAT_ADJ, lemmesAdj, rejtroLemmeCats, ejquivalences, toutesLesFormes)
+    ajouteSejrie(qcLexique, qcRejtroFormes, base, CAT_VER, lemmesVer, rejtroLemmeCats, ejquivalences, toutesLesFormes)
     qcRejtroFormes.finAjouts()
     qcRejtroFormes.ejcritIdentificationFichier(maxIdentifiant, identifieurUnique)
     qcRejtroLexique.close()
@@ -195,13 +214,15 @@ def construit(racine):
 
 ################################
 # ajoute les identifiants des lemmes d'une macrocat   
-def ajouteSejrie(qcLexique, qcRejtroFormes, base, catejgorie, lemmesMacrocat, rejtroLemmeCats, ejquivalences):
+def ajouteSejrie(qcLexique, qcRejtroFormes, base, catejgorie, lemmesMacrocat, rejtroLemmeCats, ejquivalences, toutesLesFormes):
     # par ordre alphabejtique
     lemmesMacrocat.sort()
     for (graphieLemme, idLemme) in lemmesMacrocat:
         description = []
         attributsLemme = trouveAttributsLemme(base, idLemme)
-        for (graphieForme, bGenre, bNombre, bPersonne, bTemps) in attributsLemme:
+        for (idForme, graphieForme, bGenre, bNombre, bPersonne, bTemps) in attributsLemme:
+            # si la forme n'a pas ejtej prejalablement retenue, on ne la prend pas 
+            if (idForme, graphieForme) not in toutesLesFormes: continue
             # <genre> <nombre> <personne> <temps> <identifiantForme>
             identifiantForme = qcLexique.trouveIdentifiant(graphieForme)
             if identifiantForme == 0: raise Exception(f'ERREUR INTERNE 08 : {graphieForme}')
@@ -245,7 +266,7 @@ def trouveIdsLemmes(base):
             AND NOT graphies.graphie LIKE "%'%" 
             AND NOT graphies.graphie LIKE "% %" 
             AND LENGTH(graphies.graphie) > 5 
-            AND lemmes.macrocat IN ({L_NC},{L_ADV});
+            AND lemmes.macrocat IN ({L_NC},{L_ADV},{L_V});
         ''')
     return rejsultat
 
@@ -266,9 +287,10 @@ def trouveGenreSub(base, idLemme):
 # rejcupehre toutes les graphies des formes d'un lemme donnej
 def trouveGraphiesFormes(base, idLemme):
     rejsultat = base.executeSqlSelect(f'''
-        SELECT DISTINCT graphies.graphie, formes.id
+        SELECT DISTINCT graphies.graphie, formes.id, micro.macro_micro
             FROM formes 
             JOIN graphies ON formes.graphie=graphies.id 
+            JOIN microcats AS micro ON formes.microcat=micro.id 
             WHERE formes.lemme={idLemme};
         ''')
     return rejsultat
@@ -280,8 +302,7 @@ def trouveAttributsForme(base, idForme):
         SELECT DISTINCT formes.lemme, micro.macrocat, micro.genre, micro.nombre, micro.personne, micro.temps 
             FROM formes 
             JOIN microcats AS micro ON formes.microcat=micro.id 
-            WHERE micro.macrocat IN ({L_NC},{L_ADV}) 
-            AND formes.id="{idForme}";
+            WHERE formes.id="{idForme}";
         ''')
     return rejsultat
 
@@ -289,13 +310,12 @@ def trouveAttributsForme(base, idForme):
 # rejcupehre toutes les propriejtejs intejressantes d'un lemme donnej
 def trouveAttributsLemme(base, idLemme):
     rejsultat = base.executeSqlSelect(f'''
-        SELECT DISTINCT grform.graphie, micro.genre, micro.nombre, micro.personne, micro.temps 
+        SELECT DISTINCT formes.id, grform.graphie, micro.genre, micro.nombre, micro.personne, micro.temps 
             FROM formes 
             JOIN lemmes ON formes.lemme=lemmes.id 
             JOIN graphies AS grform ON formes.graphie=grform.id 
             JOIN microcats AS micro ON formes.microcat=micro.id 
-            WHERE micro.macrocat IN ({L_NC},{L_ADV}) 
-            AND lemmes.id="{idLemme}";
+            WHERE lemmes.id="{idLemme}";
         ''')
     return rejsultat
 

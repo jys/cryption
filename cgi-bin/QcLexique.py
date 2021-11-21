@@ -15,10 +15,11 @@ def usage():
     script = '$PY/' + path.basename(sys.argv[0])
     print (f"""© l'ATEJCON.
 Analyse le fichier plat du lexique du système Qc.
+Donne l'identifiant d'un mot.
 
-usage   : {script} <fichier Qc> [ <analyse> | <ident> <mot> ]
+usage   : {script} <fichier Qc> [ "analyse" | "ident" <mot> ]
 exemple : {script} Latejcon.qclexique
-exemple : {script} Latejcon.qclexique id adjectifs
+exemple : {script} Latejcon.qclexique id désoccultation
 """)
     
 def main():
@@ -42,8 +43,7 @@ def main():
 def analyse(nomFichierQc, action, mot):
     qcLexique = QcLexique(nomFichierQc)
     if action.startswith('ana'):
-        motsIdentifiants = qcLexique.vidage()
-        print(f'{len(motsIdentifiants)} mots-identifiants trouvés')
+        qcLexique.afficheFichierLexique()
     elif action.startswith('id'):
         identifiant = qcLexique.trouveIdentifiant(mot)
         print(f'identifiant : {identifiant}')
@@ -109,24 +109,32 @@ class QcLexique(QcIndex):
             self.ejcritNombre4(adresseDonnejes)
         # ejcrit le bloc identification
         self.ejcritIdentificationFichier(identifiant, int(time.time()))
-        
+
     ################################
-    # donne l'identifiant d'une graphie, 0 si pas trouveje
-    def trouveIdentifiant(self, graphie):
-        clefB = QcFichier.clefB(graphie)
-        index = clefB % self.nombreEntrejes
+    # retourne l'adresse et la longueur des donnejes d'une entreje de lexique
+    def trouveDonnejes(self, index):
         adresseIndex = self.donneAdresseIndex(index)
         self.seek(adresseIndex, DEJBUT)
         # <flagIdHash=13>(1) <identifiantHash>(3) <longueurDonnejes>(3) <adresseDonnejes>(4)
         flag = self.litNombre1()
         # entreje inutiliseje = graphie inconnue
-        if flag == 0: return 0
+        if flag == 0: return (0, 0)
         if flag != FLAG_IDHASH: 
             raise Exception('{} : pas FLAG_IDHASH à {:08X}'.format(self.nomQcFichier, self.tell() -1))
         if self.litNombre3() != index:
             raise Exception('{} : incohérence à {:08X}'.format(self.nomQcFichier, self.tell() -3))
         longueurDonnejes = self.litNombre3()
         adresseDonnejes = self.litNombre4()
+        return (adresseDonnejes, longueurDonnejes)
+        
+    ################################
+    # donne l'identifiant d'une graphie, 0 si pas trouveje
+    def trouveIdentifiant(self, graphie):
+        clefB = QcFichier.clefB(graphie)
+        index = clefB % self.nombreEntrejes
+        (adresseDonnejes, longueurDonnejes) = self.trouveDonnejes(index)
+        # entreje inutiliseje = graphie inconnue
+        if adresseDonnejes == 0: return 0
         adresseFinDonnejes = adresseDonnejes + longueurDonnejes
         self.seek(adresseDonnejes, DEJBUT)
         # { <mot> <identifiant> }
@@ -141,18 +149,9 @@ class QcLexique(QcIndex):
     def vidage(self):
         motsIdentifiants = []
         for index in range(self.nombreEntrejes):
-            adresseIndex = self.donneAdresseIndex(index)
-            self.seek(adresseIndex, DEJBUT)
-            # <flagIdHash=13>(1) <identifiantHash>(3) <longueurDonnejes>(3) <adresseDonnejes>(4)
-            flag = self.litNombre1()
-            # entreje inutiliseje
-            if flag == 0: continue
-            if flag != FLAG_IDHASH: 
-                raise Exception('{} : pas FLAG_IDHASH à {:08X}'.format(self.nomQcFichier, self.tell() -1))
-            if self.litNombre3() != index:
-                raise Exception('{} : incohérence à {:08X}'.format(self.nomQcFichier, self.tell() -3))
-            longueurDonnejes = self.litNombre3()
-            adresseDonnejes = self.litNombre4()
+            (adresseDonnejes, longueurDonnejes) = self.trouveDonnejes(index)
+            # entreje inutiliseje 
+            if adresseDonnejes == 0: continue
             adresseFinDonnejes = adresseDonnejes + longueurDonnejes
             self.seek(adresseDonnejes, DEJBUT)
             # { <mot> <identifiant> }
@@ -162,6 +161,35 @@ class QcLexique(QcIndex):
                 motsIdentifiants.append((identifiant, mot))
         motsIdentifiants.sort()
         return motsIdentifiants
+        
+    ################################
+    # affiche les dejtails du fichier
+    def afficheFichierLexique(self):
+        self.afficheFichierIndex()
+        longueurs = {}
+        total = 0
+        for index in range(self.nombreEntrejes):
+            (adresseDonnejes, longueurDonnejes) = self.trouveDonnejes(index)
+            longueur = 0
+            if adresseDonnejes != 0: 
+                adresseFinDonnejes = adresseDonnejes + longueurDonnejes
+                self.seek(adresseDonnejes, DEJBUT)
+                # { <mot> <identifiant> }
+                while self.tell() < adresseFinDonnejes:
+                    self.litMotUtf8()
+                    self.litNombreULat()
+                    longueur +=1
+            if longueur not in longueurs: longueurs[longueur] = 0
+            longueurs[longueur] +=1
+            total += longueur
+        print ("=============")
+        print("NOMBRE D'INDEX             : ", self.nombreEntrejes)
+        print("NOMBRE DE DONNÉES          : ", total)
+        longueursListe = list(longueurs.items())
+        longueursListe.sort()
+        for (longueur, nombre) in longueursListe:
+            print(f'{longueur} : {nombre}')
+        print ("=============")
             
        
 if __name__ == '__main__':

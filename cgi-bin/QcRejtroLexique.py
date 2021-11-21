@@ -13,8 +13,9 @@ def usage():
     script = '$PY/' + path.basename(sys.argv[0])
     print (f"""© l'ATEJCON.
 Analyse le fichier plat du rejtrolexique du système Qc.
+Donne le mot correspondant à un identifiant.
 
-usage   : {script} <fichier Qc> [ <analyse> | <mot> <ident> ]
+usage   : {script} <fichier Qc> [ "analyse" | "mot" <ident> ]
 exemple : {script} Latejcon.qcrejtrolexique
 exemple : {script} Latejcon.qcrejtrolexique mot 35944
 """)
@@ -40,11 +41,11 @@ def main():
 def analyse(nomFichierQc, action, ident):
     qcRejtroLexique = QcRejtroLexique(nomFichierQc)
     if action.startswith('ana'):
-        motsIdentifiants = qcRejtroLexique.vidage()
-        print(f'{len(motsIdentifiants)} mots-identifiants trouvés')
+        qcRejtroLexique.afficheFichierRejtroLexique()
     elif action.startswith('mot'):
         mot = qcRejtroLexique.trouveGraphie(ident)
         print(f'mot : #{mot}#')
+    qcRejtroLexique.close()
         
 
 ######################################################################################
@@ -108,22 +109,23 @@ class QcRejtroLexique(QcIndex):
     def vidage(self):
         motsIdentifiants = []
         for identifiant in range(self.nombreEntrejes):
-            adresseIndex = self.donneAdresseIndex(identifiant)
-            self.seek(adresseIndex, DEJBUT)
-            # <flagId=37>(1) <identifiant>(3) <adresseMotUtf8>(4)
-            flag = self.litNombre1()
-            # entreje inutiliseje
-            if flag == 0: continue
-            if flag != FLAG_ID: 
-                raise Exception('{} : pas FLAG_ID à {:08X}'.format(self.nomQcFichier, self.tell() -1))
-            if self.litNombre3() != identifiant:
-                raise Exception('{} : incohérence à {:08X}'.format(self.nomQcFichier, self.tell() -3))
-            adresseMotUtf8 = self.litNombre4()
-            self.seek(adresseMotUtf8, DEJBUT)
-            mot = self.litMotUtf8()
+            mot = self.trouveGraphie(identifiant)
             motsIdentifiants.append((identifiant, mot))
         motsIdentifiants.sort()
         return motsIdentifiants
+        
+    ################################
+    # affiche les dejtails du fichier
+    def afficheFichierRejtroLexique(self):
+        self.afficheFichierIndex()
+        total = 0
+        for identifiant in range(1, self.nombreEntrejes):
+            if self.trouveGraphie(identifiant) != '': total +=1
+        print ("=============")
+        print("NOMBRE D'IDENTIFIANTS      : ", self.nombreEntrejes -1)
+        print("NOMBRE DE MOTS             : ", total)
+        print ("=============")
+        
             
 if __name__ == '__main__':
     main()
