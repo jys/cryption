@@ -42,7 +42,7 @@ if ejtat == 'enSaisie' and soumettre:
     finParenthehse = menuPropos.find('»»»')
     if debParenthehse != -1 and finParenthehse != -1:
         texteSeul = menuPropos[:debParenthehse] + menuPropos[finParenthehse +3:]
-        parenthehse = menuPropos[debParenthehse:finParenthehse +3]
+        parenthehse = menuPropos[debParenthehse:finParenthehse +3].replace('\n', '')
         parties = re.match(u'.* ([0-9]+)\).*', parenthehse, re.UNICODE)
         if parties :
             clefNum = 2236 - int(parties.group(1))

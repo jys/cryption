@@ -245,41 +245,7 @@ def construit(racine):
     qcRejtroFormes.finAjouts()
     qcRejtroFormes.ejcritIdentificationFichier(maxIdentifiant, identifieurUnique)
     qcRejtroLexique.close()
-     
-    ## creje le dictionnaire lemme -> formes et les diffejrentes listes de lemmes
-    #lemmesAdv = set()
-    #lemmesSubM = set()
-    #lemmesSubF = set()
-    #lemmesAdj = set()
-    #lemmesVer = set()
-    #lemmesFormes = {}
-    #rejtroLemmes = {}
-    #for (grform, grlem, macrocat, genre, nombre, personne, temps) in lesFormes3:
-        #identForme = qcLexique.trouveIdentifiant(grform)
-        #if identForme == 0: raise Exception(f'ERREUR INTERNE 01 : {grform}')
-        #if grlem not in lemmesFormes: lemmesFormes[grlem] = []
-        #lemmesFormes[grlem].append((identForme, genre, nombre, personne, temps))
-        #if macrocat == CAT_ADV: lemmesAdv.add(grlem)
-        #elif macrocat == CAT_ADJ: lemmesAdj.add(grlem)
-        #elif macrocat == CAT_VER: lemmesVer.add(grlem)
-        #elif macrocat == CAT_SUBM: 
-            #if genre == MASCULIN: lemmesSubM.add(grlem)
-            #elif genre == FEJMININ: lemmesSubF.add(grlem)
-            #else: raise Exception(f'ERREUR INTERNE 02 : {grform}, {genre}')
-    #nombreLemmes = len(lemmesAdv) + len(lemmesSubM) + len(lemmesSubF) + len(lemmesAdj) + len(lemmesVer)
-    #print(f'{nombreLemmes} lemmes conservés')    
-    #print(f'Création du {racine}.qcrejtroformes') 
-    #qcRejtroFormes = QcRejtroFormes(f'{racine}.qcrejtroformes', True, nombreLemmes)
-    ## l'ordre est obligatoirement CAT_ADV, CAT_SUBM, CAT_SUBF, CAT_ADJ, CAT_VER
-    #ajouteSejrie(qcLexique, qcRejtroFormes, CAT_ADV, list(lemmesAdv), lemmesFormes, rejtroLemmes)
-    #ajouteSejrie(qcLexique, qcRejtroFormes, CAT_SUBM, list(lemmesSubM), lemmesFormes, rejtroLemmes)
-    #ajouteSejrie(qcLexique, qcRejtroFormes, CAT_SUBF, list(lemmesSubF), lemmesFormes, rejtroLemmes)
-    #ajouteSejrie(qcLexique, qcRejtroFormes, CAT_ADJ, list(lemmesAdj), lemmesFormes, rejtroLemmes)
-    #ajouteSejrie(qcLexique, qcRejtroFormes, CAT_VER, list(lemmesVer), lemmesFormes, rejtroLemmes)
-    #qcRejtroFormes.finAjouts()
-    #qcRejtroFormes.ejcritIdentificationFichier(maxIdentifiant, identifieurUnique)
-    #qcRejtroLexique.close()
-    
+         
     # 9) creje le fichier de formes
     # creje le dictionnaire formes -> lemmes 
     formesLemmes = {}
