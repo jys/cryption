@@ -24,11 +24,11 @@ if path.abspath(path.curdir).endswith('jys/Boa/Splus7'): ressources = 'ressource
 else: ressources = '../ressources/'               # canap de Dom
 # les versions de ressources
 QC_VERSION1 = 'Latejcon'
-QC_VERSION2 = 'Latejcon2'
+QC_VERSION2 = 'Latejcon3'
 VERSION1 = 'mistera parentezo kun stranga latejcona nombro'
 VERSION2 = 'mistera parentezo kun stranga latejcona boa nombro'
-QC_VERSION_COURANTE = QC_VERSION1
-VERSION_COURANTE = VERSION1
+QC_VERSION_COURANTE = QC_VERSION2
+VERSION_COURANTE = VERSION2
 # ejtablit les ejtats et les demandes
 ejtat =  form.getvalue('ejtat') or 'enSaisie'
 clef =  form.getvalue('clef') or '7'

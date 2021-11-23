@@ -291,7 +291,7 @@ def trouveFormes(base):
             JOIN graphies AS grlem ON lemmes.graphie=grlem.id 
             JOIN origines_formes ON origines_formes.forme=formes.id 
             WHERE micro.langue={FRE} 
-            AND origines_formes.origine IN (3,6,13,68,80)
+            AND origines_formes.origine IN (3,6,13,68,82,83,84)
             AND NOT grform.graphie LIKE "%\_%" 
             AND NOT grform.graphie LIKE "%-%" 
             AND NOT grform.graphie LIKE "%'%" 
