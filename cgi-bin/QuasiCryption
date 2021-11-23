@@ -19,6 +19,16 @@ print()
 
 form = cgi.FieldStorage()
 #print(form)
+# un dejtail d'implantation que je n'ai pas compris
+if path.abspath(path.curdir).endswith('jys/Boa/Splus7'): ressources = 'ressources/'     #local
+else: ressources = '../ressources/'               # canap de Dom
+# les versions de ressources
+QC_VERSION1 = 'Latejcon'
+QC_VERSION2 = 'Latejcon2'
+VERSION1 = 'mistera parentezo kun stranga latejcona nombro'
+VERSION2 = 'mistera parentezo kun stranga latejcona boa nombro'
+QC_VERSION_COURANTE = QC_VERSION1
+VERSION_COURANTE = VERSION1
 # ejtablit les ejtats et les demandes
 ejtat =  form.getvalue('ejtat') or 'enSaisie'
 clef =  form.getvalue('clef') or '7'
@@ -43,11 +53,13 @@ if ejtat == 'enSaisie' and soumettre:
     if debParenthehse != -1 and finParenthehse != -1:
         texteSeul = menuPropos[:debParenthehse] + menuPropos[finParenthehse +3:]
         parenthehse = menuPropos[debParenthehse:finParenthehse +3].replace('\n', '')
-        parties = re.match(u'.* ([0-9]+)\).*', parenthehse, re.UNICODE)
+        parties = re.match('.* ([0-9]+)\).*', parenthehse)
         if parties :
             clefNum = 2236 - int(parties.group(1))
             ejtat = 'enDejcryptage'
-            versionOk = re.match(u'.*mistera parentezo kun stranga latejcona nombro.*', parenthehse, re.UNICODE)
+            if re.search(VERSION1, parenthehse): versionDejcrypt = QC_VERSION1
+            elif re.search(VERSION2, parenthehse): versionDejcrypt = QC_VERSION2
+            else: versionDejcrypt = ''
 
 if modifier: ejtat = 'enSaisie'
 if plus: clefNum += 1
@@ -56,15 +68,20 @@ if zejro: clefNum = 7
 clef = str(clefNum)
 
 if soumettre or plus or moins or zejro: 
-    #qcCryption = QcCryption('ressources/Latejcon')     #local
-    qcCryption = QcCryption('../ressources/Latejcon')   #canap de Dom
     if ejtat == 'enCryptage':
-        texteCryptej = f'««« texte quasi-crypté, dejcryptable sur https://latejcon.art à la rubrique &quot;la quasi-cryption&quot; (mistera parentezo kun stranga latejcona nombro {clefNum + 2236}) »»»\n'
+        qcCryption = QcCryption(ressources + QC_VERSION_COURANTE)
+        texteCryptej = f'««« texte quasi-crypté, dejcryptable sur https://latejcon.art à la rubrique &quot;la quasi-cryption&quot; ({VERSION_COURANTE} {clefNum + 2236}) »»»\n'
         texteCryptej += qcCryption.cryptage(menuPropos, clefNum)
+        qcCryption.close()
     else:
-        texteCryptej = qcCryption.cryptage(texteSeul, clefNum)
-        if versionOk: texteDejcryptage = 'Et voici le menu propos originel :'
-        else: texteDejcryptage = 'Malheureusement, la clef de dejcryptage a ejté dejfinitivement perdue... Nous sommes dejsolejs.'
+        if versionDejcrypt != '':
+            qcCryption = QcCryption(ressources + versionDejcrypt)
+            texteCryptej = qcCryption.cryptage(texteSeul, clefNum)
+            qcCryption.close()
+            texteDejcryptage = 'Et voici le menu propos originel :'
+        else: 
+            texteCryptej = ''
+            texteDejcryptage = 'Malheureusement, la clef de dejcryptage a ejté dejfinitivement perdue... Nous sommes dejsolejs.'
         
 # la trace
 if soumettre: texte = ' '.join(menuPropos.splitlines()).replace('|', ' ')

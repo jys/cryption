@@ -91,6 +91,7 @@ def construit(racine):
     formesNombres = {}
     lemmesMacros = {}
     for (grform, grlem, macrocat, macro_micro, genre, nombre, personne, temps) in lesFormes:
+        #if grform == "personne" or grlem == "personne": print(grform, grlem, macrocat, macro_micro, genre, nombre, personne, temps)
         if grform not in formesLemmes: formesLemmes[grform] = []
         formesLemmes[grform].append(grlem)
         if grform not in formesMacros: formesMacros[grform] = []
@@ -146,6 +147,7 @@ def construit(racine):
     catSubf = {}
     catVer = {}
     for (grform, grlem, macrocat, genre, nombre, personne, temps) in lesFormes2:
+        #if grform == "personne" or grlem == "personne": print(grform, grlem, macrocat, genre, nombre, personne, temps)
         if macrocat == CAT_ADV:
             if grlem not in catAdv: catAdv[grlem] = []
             catAdv[grlem].append((genre, nombre, personne, temps))
@@ -289,7 +291,7 @@ def trouveFormes(base):
             JOIN graphies AS grlem ON lemmes.graphie=grlem.id 
             JOIN origines_formes ON origines_formes.forme=formes.id 
             WHERE micro.langue={FRE} 
-            AND origines_formes.origine IN (3,6,13,68)
+            AND origines_formes.origine IN (3,6,13,68,80)
             AND NOT grform.graphie LIKE "%\_%" 
             AND NOT grform.graphie LIKE "%-%" 
             AND NOT grform.graphie LIKE "%'%" 
