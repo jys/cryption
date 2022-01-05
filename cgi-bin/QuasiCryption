@@ -24,16 +24,19 @@ if path.abspath(path.curdir).endswith('jys/Boa/Splus7'): ressources = 'ressource
 else: ressources = '../ressources/'               # canap de Dom
 # les versions de ressources
 QC_VERSION1 = 'Latejcon'
-QC_VERSION2 = 'Latejcon3'
+QC_VERSION3 = 'Latejcon3'
+QC_VERSION4 = 'Latejcon4'
 VERSION1 = 'mistera parentezo kun stranga latejcona nombro'
-VERSION2 = 'mistera parentezo kun stranga latejcona boa nombro'
-QC_VERSION_COURANTE = QC_VERSION2
-VERSION_COURANTE = VERSION2
+VERSION3 = 'mistera parentezo kun stranga latejcona boa nombro'
+VERSION4 = 'mistera parentezo kun stranga latejcona doa nombro'
+QC_VERSION_COURANTE = QC_VERSION4
+VERSION_COURANTE = VERSION4
 # ejtablit les ejtats et les demandes
 ejtat =  form.getvalue('ejtat') or 'enSaisie'
 clef =  form.getvalue('clef') or '7'
 clefNum = int(clef)
-modedEmploi = ('modedEmploi' in form) ^ ('sansModedEmploi' not in form)
+modedEmploi = ('modedEmploi' in form) ^ ('avecModedEmploi' in form)
+#modedEmploi = ('modedEmploi' in form) ^ ('sansModedEmploi' not in form)
 soumettre = form.getvalue('soumettre')
 modifier = form.getvalue('modifier')
 plus = form.getvalue('plus')
@@ -41,6 +44,7 @@ moins = form.getvalue('moins')
 zejro = form.getvalue('zejro')
 texteSaisi = form.getvalue('texteSaisi') or ''
 menuPropos = form.getvalue('menuPropos') or ''
+texteDejcryptage = form.getvalue('texteDejcryptage')  or ''
 texteCryptej = form.getvalue('texteCryptej')  or ''
 
 # cryptage ou dejcryptage
@@ -58,7 +62,8 @@ if ejtat == 'enSaisie' and soumettre:
             clefNum = 2236 - int(parties.group(1))
             ejtat = 'enDejcryptage'
             if re.search(VERSION1, parenthehse): versionDejcrypt = QC_VERSION1
-            elif re.search(VERSION2, parenthehse): versionDejcrypt = QC_VERSION2
+            elif re.search(VERSION3, parenthehse): versionDejcrypt = QC_VERSION3
+            elif re.search(VERSION4, parenthehse): versionDejcrypt = QC_VERSION4
             else: versionDejcrypt = ''
 
 if modifier: ejtat = 'enSaisie'
@@ -151,6 +156,7 @@ if modedEmploi:
         <li>Pour quasi-dejcrypter un texte reçu et dusment reconnu comme quasi-encrypté par l'Atejcon (par la premiehre ligne avec tous ses guillemets), soumettez-le par un habile copier-coller dans la zone ci-dessous (<mi6>il s'affiche en vert</mi6>) puis actionnez le quasi-dejcryptage par <i>le bouton <b>soumettre</b></i>. Attention, il faut y mettre la premiehre ligne avec tous ses guillemets (<b>«««&nbsp;...&nbsp;»»»</b>) ! Le menu propos d'origine s'affiche à la place du texte encrypté (<mi7>il s'affiche en bleu</mi7>).</li>
         <li>Pour revenir à l'ejcran originel de saisie, actionnez <i>le bouton <b>modifier</b></i>.</li>
         </ul>
+        <i>Conseil : </i>pour favoriser les substitutions, privilejgiez les substantifs, adverbes, verbes à l'infinitif et au participe passé, non grammaticalement ambigus et de taille assez longue.
     """)
 print('</div>')
 
@@ -181,10 +187,13 @@ else:
 # passage de l'ejtat
 if ejtat: print(f'<input type="hidden" name="ejtat" value="{ejtat}"/>')
 if clef: print(f'<input type="hidden" name="clef" value="{clef}"/>')
-if not modedEmploi: print(f'<input type="hidden" name="sansModedEmploi" value="1"/>')
+#if not modedEmploi: print(f'<input type="hidden" name="sansModedEmploi" value="1"/>')
+if modedEmploi: print(f'<input type="hidden" name="avecModedEmploi" value="1"/>')
 if menuPropos: 
     menuPropos = menuPropos.replace('"', '&quot;')
     print(f'<input type="hidden" name="menuPropos" value="{menuPropos}"/>')
+if texteDejcryptage:
+    print(f'<input type="hidden" name="texteDejcryptage" value="{texteDejcryptage}"/>')
 if texteCryptej: 
     texteCryptej = texteCryptej.replace('"', '&quot;')
     print(f'<input type="hidden" name="texteCryptej" value="{texteCryptej}"/>')
