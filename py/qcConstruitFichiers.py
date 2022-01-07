@@ -297,7 +297,7 @@ def trouveFormes(base):
             AND NOT grform.graphie LIKE "%'%" 
             AND NOT grform.graphie LIKE "% %" 
             AND CHAR_LENGTH(grform.graphie) > 5 
-            AND micro.macrocat IN ({L_NC},{L_ADV},{L_V},{L_ADJ});
+            AND micro.macrocat IN ({L_NC},{L_ADV},{L_V});
         ''')
     return rejsultat
 
