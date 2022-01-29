@@ -24,6 +24,7 @@ if path.abspath(path.curdir).endswith('jys/Boa/Splus7'): ressources = 'ressource
 else: ressources = '../ressources/'               # canap de Dom
 # les versions de ressources
 versions = (
+    ('Latejcon6', 'mistera parentezo kun stranga latejcona goa nombro'),
     ('Latejcon5', 'mistera parentezo kun stranga latejcona foa nombro'),
     ('Latejcon4', 'mistera parentezo kun stranga latejcona doa nombro'),
     ('Latejcon3', 'mistera parentezo kun stranga latejcona boa nombro'),
@@ -83,7 +84,7 @@ version = str(versionNum)
 if soumettre or plus or moins or zejro or autrePlus or autreMoins: 
     if ejtat == 'enCryptage':
         qcCryption = QcCryption(ressources + versions[versionNum][0])
-        texteCryptej = f'««« texte quasi-crypté, dejcryptable sur https://latejcon.art à la rubrique &quot;la quasi-cryption&quot; ({versions[versionNum][1]} {clefNum + 2236}) »»»\n'
+        texteCryptej = f'««« texte quasi-crypté, dejcryptable sur https://latejcon.art à la rubrique &quot;la quasi-cryption&quot; ({versions[versionNum][1]} {clefNum + 2236}). Attention, cet en-teste fait partie du message quasi-crypté. »»»\n'
         texteCryptej += qcCryption.cryptage(menuPropos, clefNum)
         qcCryption.close()
     else:
@@ -165,7 +166,7 @@ if modedEmploi:
         <li>Pour revenir à l'ejcran originel de saisie, actionnez <i>le bouton <b>modifier</b></i>.</li>
         </ul>
         <i>Conseils : </i>pour favoriser les substitutions, privilejgiez les substantifs, adverbes, verbes à l'infinitif et au participe passé, grammaticalement non ambigus et de taille assez longue... Et utilisez <i>les boutons <b>+</b>, <b>-</b>, <b>&#171;</b>, <b>&#187;</b> et <b>0</b></i> jusqu'au contentement. &#9786;
-        <br/>Pour en savoir plus, vous pouvez consulter les <i><a target="_blank" href="https://latejcon.art/498D-quasiCryption-specs.pdf">spejcifications fonctionnelles de la quasi-cryption</a></i>.
+        <br/>Pour en savoir plus, vous pouvez consulter les <i><a target="_blank" href="https://latejcon.art/498X-quasiCryption-specs.pdf">spejcifications fonctionnelles de la quasi-cryption</a></i>.
     """)
 print('</div>')
 

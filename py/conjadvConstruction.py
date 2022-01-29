@@ -15,7 +15,7 @@ def usage():
 Construction de la conjugaison des adverbes menteurs.
 
 usage   : {script} <fichier html de résultats>
-usage   : {script} ../site/latejcon.art/adverbes/conjadv-01-A-adverbes.html
+usage   : {script} ../site/latejcon.art/latejconsledise/lit-16-A-adverbes.html
 """)
 
 def main():
@@ -114,8 +114,10 @@ def ejcritPhrase(fichierHtml, candidat, adverbe):
     if not nbMagique & 0x07: 
         deb = '<mark>' + deb
         fin = fin + '</mark>'
+    if adverbe in ('vraiment', 'sincèrement'): fichierHtml.write('<img id="imgright" alt="lit-16-A-A-Abribat.png" src="lit-16-A-A-Abribat.png"/>\n')
     
-    fichierHtml.write(f'{deb}Les&nbsp;{candidat}&nbsp;mentent&nbsp;{adverbe}.{fin} ')
+    #fichierHtml.write(f'{deb}Les&nbsp;{candidat}&nbsp;mentent&nbsp;{adverbe}.{fin} ')
+    fichierHtml.write(f'{deb}Les {candidat} mentent {adverbe}.{fin} ')
     
 ################################
 def ejcritDejbut(fichierHtml):
@@ -127,15 +129,11 @@ def ejcritDejbut(fichierHtml):
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <title>adverbes menteurs</title>
 <style>
-body {
-   overflow-x: hidden; 
-   overflow-y: hidden; 
-}
 .articlecorps {
-  width: 2000px;
+  width: auto;
   margin-left: 20px;
-  margin-right: 50px;
-  margin-top: 20px;
+  margin-right: 20px;
+  margin-top: 50px;
   margin-bottom: 20px;
   background-color: #F5F5F5;
 }  
@@ -145,10 +143,13 @@ body {
   font-size: 120%;
   text-align: justify;
 }
+mark {
+  background-color: LightGray;
+}
 </style>
 <link rel="icon" type="image/png" href="../faviconLaR.png"/>
 </head>
-<body onmousemove="souris(event);">
+<body>
 <table id="table1"><tr>
 <td id="td1"><img alt="../echiquierLatejcon4-200.png" src="../echiquierLatejcon4-200.png"/></td>
 <td id="td2"><h1>&nbsp;&nbsp;La conjugaison des adverbes menteurs</h1>
@@ -156,7 +157,7 @@ body {
   <source src="lit-16-A-JpAbribat.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video>
-<br/>L'ideje nous en est venue en regardant le psychanalyste Jean-Paul Abribat dans "Enfin pris&nbsp;?", le film de Pierre Carles de 2002. <br/>Lacanien ejtait-il certainement...bien qu'il faille considejrer que, de son point de vue, une certaine ment...<br/>
+<br/>L'ideje nous en est venue en regardant le psychanalyste Jean-Paul Abribat dans "Enfin pris&nbsp;?", le film de Pierre Carles de 2002. <br/>Lacanien, il l'ejtait certainement...bien qu'il faille considejrer que, de son point de vue, (la) certaine ment...<br/>
 Il faut dire aussi que les adverbes sont assez mal vus par les crypto-structuralistes qui grouillent à l'Atejcon. 
 <br/>Ne confondons pas lacanien et latejconnien. Mais qu'importe, haro sur l'adverbe qui ment&nbsp;!
 </td>
@@ -176,37 +177,6 @@ def ejcritFin(fichierHtml):
 <td id="td2"><img alt="../echiquierLatejcon5-100.png" src="../echiquierLatejcon5-100.png"/></td>
 <td id="td2"><a href="lit-00-A-latejconsledise.html"><article id="article1"><img alt="Adham-Sartre-c-100.jpeg" src="Adham-Sartre-c-100.jpeg"/><br/>latejconsledise</article></a></td>
 </tr></table>
-<script type="text/javascript">
-function souris(event)
-{
-  // la taille de l'ejcran
-  const ejcranH = window.innerWidth;
-  const ejcranV = window.innerHeight;
-  // la taille de la page
-  const pageH  = document.documentElement.scrollWidth;
-  const pageV = document.documentElement.scrollHeight;
-  // les coordonnejes de la souris
-  const x = event.clientX;
-  const y = event.clientY;
-  // les talons
-  const talH = 80
-  const talV = 100
-  // les increjments  
-  const incH = (pageH - ejcranH) / (ejcranH - 2*talH)
-  const incV = (pageV - ejcranV) / (ejcranV - 2*talV)
-  // positionnement de la page
-  var posH = 0
-  var posV = 0
-  if (x > talH) {
-    posH = (x - talH) * incH; 
-  }
-  if (y > talV) {
-    posV = (y - talV) * incV; 
-  }
-  window.scrollTo(posH, posV)
-}
-</script>
-
 </body>
 </html>
 

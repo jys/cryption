@@ -43,7 +43,7 @@ def analyse(nomFichierQc, action, numejroLemmeCat):
     if action.startswith('ana'):
         qcRejtroFormes.afficheFichierRejtroFormes()
     elif action.startswith('form'):
-        donnejes = qcRejtroFormes.trouveDonnejes(numejroLemmeCat)
+        donnejes = qcRejtroFormes._trouveDonnejes(numejroLemmeCat)
         for(identifiantForme, genre, nombre, personne, temps) in donnejes:
             print(f'{identifiantForme}, {genre}, {nombre}, {personne}, {temps}')
     qcRejtroFormes.close()
@@ -74,10 +74,12 @@ CAT_ADV = 0
 CAT_SUBM = 1
 CAT_SUBF = 2
 CAT_VER = 3 
+CAT_PPR = 4
+CAT_PPA = 5 
 # <flagIdLemme=23>(1) <identifiant>(3) <nombreDejfinitions>(1) <adresseDejfinitions>(4) = 9
 TAILLE_ENTREJE = 9
 # <flagLimites=31>(1) <nombreLimites>(1)
-NBRE_LIMITES = 6
+NBRE_LIMITES = 7
 TAILLE_LIMITES = NBRE_LIMITES * 3 + 2
 FLAG_IDLEMME = 23 
 FLAG_LIMITES = 31
@@ -154,7 +156,7 @@ class QcRejtroFormes(QcIndex):
         
     ################################
     # retourne l'ensemble des donnejes d'une rejtroforme
-    def trouveDonnejes(self, numejroLemmeCat):
+    def _trouveDonnejes(self, numejroLemmeCat):
         adresseIndex = self.donneAdresseIndex(numejroLemmeCat)
         self.seek(adresseIndex, DEJBUT)
         # <flagIdLemme=23>(1) <identifiant>(3) <nombreDejfinitions>(1) <adresseDejfinitions>(4)
@@ -196,7 +198,7 @@ class QcRejtroFormes(QcIndex):
             numejroDejcalej += self.numejrosMax[index -1] - self.numejrosMax[index]
         # trouve les donnejes de la forme dejcaleje
         rejsultat = []
-        for (identifiantDejcalej, genreDejcalej, nombreDejcalej, personneDejcalej, tempsDejcalej) in self.trouveDonnejes(numejroDejcalej):
+        for (identifiantDejcalej, genreDejcalej, nombreDejcalej, personneDejcalej, tempsDejcalej) in self._trouveDonnejes(numejroDejcalej):
            if (genreDejcalej, nombreDejcalej, personneDejcalej, tempsDejcalej) == (genre, nombre, personne, temps): rejsultat.append(identifiantDejcalej)
         return rejsultat 
         
@@ -207,7 +209,7 @@ class QcRejtroFormes(QcIndex):
         longueurs = {}
         total = 0
         for numejroLemmeCat in range(self.nombreEntrejes):
-            longueur = len(self.trouveDonnejes(numejroLemmeCat))
+            longueur = len(self._trouveDonnejes(numejroLemmeCat))
             if longueur not in longueurs: longueurs[longueur] = 0
             longueurs[longueur] +=1
             total += longueur
@@ -222,7 +224,7 @@ class QcRejtroFormes(QcIndex):
         print ("=============")
         # vejrifie la cohejrence de l'ensemble
         for numejroLemmeCat in range(self.nombreEntrejes):
-            for (idForme, genre, nombre, personne, temps) in self.trouveDonnejes(numejroLemmeCat):
+            for (idForme, genre, nombre, personne, temps) in self._trouveDonnejes(numejroLemmeCat):
                 propriejtej = (numejroLemmeCat, genre, nombre, personne, temps)
                 if len(self.trouveFormesDejcalejes(propriejtej, 1)) != 1:
                     print(f'INCOHÉRENCE : {numejroLemmeCat} et {numejroLemmeCat +1}')

@@ -112,7 +112,7 @@ class QcLexique(QcIndex):
 
     ################################
     # retourne l'adresse et la longueur des donnejes d'une entreje de lexique
-    def trouveDonnejes(self, index):
+    def _trouveDonnejes(self, index):
         adresseIndex = self.donneAdresseIndex(index)
         self.seek(adresseIndex, DEJBUT)
         # <flagIdHash=13>(1) <identifiantHash>(3) <longueurDonnejes>(3) <adresseDonnejes>(4)
@@ -132,7 +132,7 @@ class QcLexique(QcIndex):
     def trouveIdentifiant(self, graphie):
         clefB = QcFichier.clefB(graphie)
         index = clefB % self.nombreEntrejes
-        (adresseDonnejes, longueurDonnejes) = self.trouveDonnejes(index)
+        (adresseDonnejes, longueurDonnejes) = self._trouveDonnejes(index)
         # entreje inutiliseje = graphie inconnue
         if adresseDonnejes == 0: return 0
         adresseFinDonnejes = adresseDonnejes + longueurDonnejes
@@ -149,7 +149,7 @@ class QcLexique(QcIndex):
     def vidage(self):
         motsIdentifiants = []
         for index in range(self.nombreEntrejes):
-            (adresseDonnejes, longueurDonnejes) = self.trouveDonnejes(index)
+            (adresseDonnejes, longueurDonnejes) = self._trouveDonnejes(index)
             # entreje inutiliseje 
             if adresseDonnejes == 0: continue
             adresseFinDonnejes = adresseDonnejes + longueurDonnejes
@@ -169,7 +169,7 @@ class QcLexique(QcIndex):
         longueurs = {}
         total = 0
         for index in range(self.nombreEntrejes):
-            (adresseDonnejes, longueurDonnejes) = self.trouveDonnejes(index)
+            (adresseDonnejes, longueurDonnejes) = self._trouveDonnejes(index)
             longueur = 0
             if adresseDonnejes != 0: 
                 adresseFinDonnejes = adresseDonnejes + longueurDonnejes
