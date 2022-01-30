@@ -50,6 +50,7 @@ texteSaisi = form.getvalue('texteSaisi') or ''
 menuPropos = form.getvalue('menuPropos') or ''
 texteDejcryptage = form.getvalue('texteDejcryptage')  or ''
 texteCryptej = form.getvalue('texteCryptej')  or ''
+racineFichiers = ''
 
 # cryptage ou dejcryptage
 if ejtat == 'enSaisie' and soumettre:
@@ -65,10 +66,10 @@ if ejtat == 'enSaisie' and soumettre:
         if parties :
             clefNum = 2236 - int(parties.group(1))
             ejtat = 'enDejcryptage'
-            versionDejcrypt = ''
+            racineFichiers = ''
             for (qcVersion, identification) in versions:
                 if re.search(identification, parenthehse):
-                    versionDejcrypt = qcVersion
+                    racineFichiers = qcVersion
                     break
 
 if modifier: ejtat = 'enSaisie'
@@ -84,13 +85,14 @@ version = str(versionNum)
 
 if soumettre or plus or moins or zejro or autrePlus or autreMoins: 
     if ejtat == 'enCryptage':
-        qcCryption = QcCryption(ressources + versions[versionNum][0])
+        racineFichiers = versions[versionNum][0]
+        qcCryption = QcCryption(ressources + racineFichiers)
         texteCryptej = f'««« texte quasi-crypté, dejcryptable sur https://latejcon.art à la rubrique &quot;la quasi-cryption&quot; ({versions[versionNum][1]} {clefNum + 2236}). Attention, cet en-teste fait partie du message quasi-crypté. »»»\n'
         texteCryptej += qcCryption.cryptage(menuPropos, clefNum)
         qcCryption.close()
     else:
-        if versionDejcrypt != '':
-            qcCryption = QcCryption(ressources + versionDejcrypt)
+        if racineFichiers != '':
+            qcCryption = QcCryption(ressources + racineFichiers)
             texteCryptej = qcCryption.cryptage(texteSeul, clefNum)
             qcCryption.close()
             texteDejcryptage = 'Et voici le menu propos originel :'
@@ -110,7 +112,7 @@ else: port = ''
 if 'HTTP_USER_AGENT' in environ: agent = environ['HTTP_USER_AGENT']
 else: environ = ''
 with open(fichierTrace, 'a') as trace:
-    trace.write(f'{timbreDeTemps} | {adrIp} | {port} | {agent} | {clefNum} | {texte}\n')
+    trace.write(f'{timbreDeTemps} | {adrIp} | {port} | {agent} | {clefNum} / {racineFichiers} | {texte}\n')
 
         
 # l'en-teste
