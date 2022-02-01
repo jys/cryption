@@ -50,8 +50,9 @@ def main():
 
 FRE = 145
 L_ADJ = 1
-L_NC = 10
 L_ADV = 2
+L_DET = 4
+L_NC = 10
 L_V= 16
 L_MASC = 1422
 L_FEM = 1423
@@ -346,7 +347,7 @@ def trouveFormes(base):
             AND NOT grform.graphie LIKE "%-%" 
             AND NOT grform.graphie LIKE "%'%" 
             AND NOT grform.graphie LIKE "% %" 
-            AND micro.macrocat IN ({L_NC},{L_ADV},{L_V},{L_ADJ});
+            AND micro.macrocat IN ({L_NC},{L_ADV},{L_V},{L_ADJ},{L_DET});
         ''')
     return rejsultat
 

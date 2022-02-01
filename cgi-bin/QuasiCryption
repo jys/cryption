@@ -24,6 +24,7 @@ if path.abspath(path.curdir).endswith('jys/Boa/Splus7'): ressources = 'ressource
 else: ressources = '../ressources/'               # canap de Dom
 # les versions de ressources
 versions = (
+    ('Latejcon8', 'mistera parentezo kun stranga latejcona joa nombro'),
     ('Latejcon7', 'mistera parentezo kun stranga latejcona hoa nombro'),
     ('Latejcon6', 'mistera parentezo kun stranga latejcona goa nombro'),
     ('Latejcon5', 'mistera parentezo kun stranga latejcona foa nombro'),
