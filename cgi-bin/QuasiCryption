@@ -25,6 +25,7 @@ else: ressources = '../ressources/'               # canap de Dom
 # les versions de ressources
 versions = (
     ('Latejcon8', 'mistera parentezo kun stranga latejcona joa nombro'),
+    ('Latejcon9', 'mistera parentezo kun stranga latejcona koa nombro'),
     ('Latejcon7', 'mistera parentezo kun stranga latejcona hoa nombro'),
     ('Latejcon6', 'mistera parentezo kun stranga latejcona goa nombro'),
     ('Latejcon5', 'mistera parentezo kun stranga latejcona foa nombro'),
