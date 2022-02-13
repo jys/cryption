@@ -140,7 +140,7 @@ def construit(racine, formeTesteje):
         if len(grform) < 5: continue
         if macrocat == L_V and macro_micro not in (L_VERBE_PRINCIPAL_INFINITIF, L_VERBE_PRINCIPAL_PARTICIPE_PRESENT, L_VERBE_PRINCIPAL_PARTICIPE_PASSE): continue
         if macrocat == L_ADV and not grform.endswith('ment'): continue
-        if macrocat == L_ADJ: continue
+        if macrocat not in (L_NC, L_ADV, L_V): continue
         if grform in formesAmbiguees: continue
         if grlem in lemmesAmbiguus: continue
         # changement de codage
@@ -343,14 +343,14 @@ def trouveFormes(base):
             JOIN graphies AS grlem ON lemmes.graphie=grlem.id 
             JOIN origines_formes ON origines_formes.forme=formes.id 
             WHERE micro.langue={FRE} 
-            AND origines_formes.origine IN (3,6,13,68,82,83,84,155)
+            AND origines_formes.origine IN (3,6,13,68,82,83,84,90,155)
             AND NOT grform.graphie LIKE "%\_%" 
             AND NOT grform.graphie LIKE "%-%" 
             AND NOT grform.graphie LIKE "%'%" 
-            AND NOT grform.graphie LIKE "% %" 
-            AND micro.macrocat IN ({L_NC},{L_ADV},{L_V},{L_ADJ},{L_DET},{L_PRON});
+            AND NOT grform.graphie LIKE "% %";
         ''')
     return rejsultat
+            #AND micro.macrocat IN ({L_NC},{L_ADV},{L_V},{L_ADJ},{L_DET},{L_PRON});
 
 if __name__ == '__main__':
         main()
