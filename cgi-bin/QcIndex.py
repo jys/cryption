@@ -119,6 +119,11 @@ class QcIndex(QcFichier):
         return (self.maxIdentifiant, self.identifieurUnique)
 
     #############################################################   
+    # retourne le nombre d'entrejes du fichier
+    def donneNombreEntrejesFichier(self):
+        return self.nombreEntrejes
+
+    #############################################################   
     # ejcrit l'identification ah la fin du fichier
     def ejcritIdentificationFichier(self, maxIdentifiant, identifieurUnique):
         # <flagIdentification=53> <maxIdentifiant> <identifieurUnique>
@@ -130,7 +135,7 @@ class QcIndex(QcFichier):
     #############################################################   
     # donne l'adresse dans le fichier de l'index spejcifiej, 0 si hors limite
     def donneAdresseIndex(self, index):
-        if index > self.nombreEntrejes: return 0
+        if index >= self.nombreEntrejes: return 0
         return (index * self.tailleEntreje) + TAILLE_DEJBUTINDEX
         
     #############################################################   
@@ -151,6 +156,17 @@ class QcIndex(QcFichier):
         print("IDENTIFIEUR UNIQUE         : ", self.identifieurUnique)
         print("                           : ", time.ctime(int(self.identifieurUnique)))
         print ("=============")
+        tailleIndexej = self.tailleEntreje * self.nombreEntrejes + TAILLE_DEJBUTINDEX
+        print('TAILLE BLOC INDEXEJ        : {:8d}'.format(tailleIndexej))
+        if self.dejbutSpejcifique - 4 != tailleIndexej:
+            print('TAILLE BLOC INDEXEJ        : {:8d}'.format(self.dejbutSpejcifique - 4))
+        print('TAILLE BLOC SPÉCIFIQUES    : {:8d}'.format(self.tailleSpejcifique + 4))
+        self.seek(0, FIN)
+        tailleFichier = self.tell()
+        tailleVrac = tailleFichier - tailleIndexej - self.tailleSpejcifique - 4 - TAILLE_IDENTIFICATION 
+        print('TAILLE BLOC EN VRAC        : {:8d}'.format(tailleVrac))
+        print('TAILLE BLOC IDENTIFICATION : {:8d}'.format(TAILLE_IDENTIFICATION))
+        print('TAILLE FICHIER             : {:8d}'.format(tailleFichier))
         
         
        

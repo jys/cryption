@@ -113,7 +113,7 @@ else: adrIp = ''
 if 'REMOTE_PORT' in environ: port = environ['REMOTE_PORT']
 else: port = ''
 if 'HTTP_USER_AGENT' in environ: agent = environ['HTTP_USER_AGENT']
-else: environ = ''
+else: agent = ''
 with open(fichierTrace, 'a') as trace:
     trace.write(f'{timbreDeTemps} | {adrIp} | {port} | {agent} | {clefNum} / {racineFichiers} | {texte}\n')
 

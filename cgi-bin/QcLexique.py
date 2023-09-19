@@ -94,7 +94,7 @@ class QcLexique(QcIndex):
             # ejcrit ah la fin du fichier dans le bloc en vrac
             self.seek(0, FIN)
             adresseDonnejes = self.tell()
-            for mot in mots:
+            for mot in listeMots:
                 identifiant +=1
                 self.ejcritMotUtf8(mot)
                 self.ejcritNombreULat(identifiant)
