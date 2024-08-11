@@ -1,0 +1,231 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+__author__ = "jys"
+__copyright__ = "Copyright (C) 2024 LATEJCON"
+
+from os import path, environ
+import datetime
+import cgi
+import re
+from Sp7Cryption import Sp7Cryption
+import cgitb
+cgitb.enable()
+#cgitb.enable(display=0, logdir="/path/to/logdir")
+
+# L'en-tête qui va bien
+print("Content-Type: text/html")
+print()
+#print(path.abspath(path.curdir))
+
+form = cgi.FieldStorage()
+#print(form)
+# un dejtail d'implantation que je n'ai pas compris
+if path.abspath(path.curdir).endswith('jys/Boa/Splus7'): ressources = 'ressources/'     #local
+else: ressources = '../ressources/'               # canap de Dom
+# les versions de ressources
+versions = (
+    ('Filt3', 'mistera parentezo kun stranga latejcona loa nombro'),
+    ('Filt2', 'mistera parentezo kun stranga latejcona joa nombro'),
+    ('Filt1', 'mistera parentezo kun stranga latejcona koa nombro'),
+    ('Filt0', 'mistera parentezo kun stranga latejcona hoa nombro')
+    )
+# ejtablit les ejtats et les demandes
+ejtat =  form.getvalue('ejtat') or 'enSaisie'
+clef =  form.getvalue('clef') or '7'
+clefNum = int(clef)
+version =  form.getvalue('version') or '0'
+versionNum = int(version)
+modedEmploi = ('modedEmploi' in form) ^ ('avecModedEmploi' in form)
+#modedEmploi = ('modedEmploi' in form) ^ ('sansModedEmploi' not in form)
+soumettre = form.getvalue('soumettre')
+modifier = form.getvalue('modifier')
+plus = form.getvalue('plus')
+moins = form.getvalue('moins')
+autrePlus = form.getvalue('autrePlus')
+autreMoins = form.getvalue('autreMoins')
+zejro = form.getvalue('zejro')
+texteSaisi = form.getvalue('texteSaisi') or ''
+clefSaisie = form.getvalue('clefSaisie') or ''
+menuPropos = form.getvalue('menuPropos') or ''
+texteDejcryptage = form.getvalue('texteDejcryptage')  or ''
+texteCryptej = form.getvalue('texteCryptej')  or ''
+ClefCryptage = form.getvalue('ClefCryptage')  or ''
+racineFichiers = ''
+
+# cryptage ou dejcryptage
+if ejtat == 'enSaisie' and soumettre:
+    menuPropos = texteSaisi
+    ejtat = 'enCryptage'
+    if len(clefSaisie) != 0:
+        parties = re.match('.* ([0-9]+)\).*', clefSaisie)
+        if parties :
+            clefNum = 2236 - int(parties.group(1))
+            ejtat = 'enDejcryptage'
+            racineFichiers = ''
+            for (qcVersion, identification) in versions:
+                if re.search(identification, clefSaisie):
+                    racineFichiers = qcVersion
+                    break        
+if modifier: ejtat = 'enSaisie'
+if plus: clefNum += 1
+if moins: clefNum-= 1
+if zejro: 
+    clefNum = 7
+    versionNum = 0
+clef = str(clefNum)
+if autrePlus: versionNum = (versionNum +1) % len(versions)
+if autreMoins: versionNum = (versionNum -1) % len(versions)
+version = str(versionNum)
+
+if soumettre or plus or moins or zejro or autrePlus or autreMoins: 
+    if ejtat == 'enCryptage':
+        racineFichiers = versions[versionNum][0]
+        sp7Cryption = Sp7Cryption(ressources + racineFichiers)
+        ClefCryptage = f'««« clef pour dejcrypter par https://latejcon.art/Splus7 ({versions[versionNum][1]} {clefNum + 2236}) »»»'
+        texteCryptej = sp7Cryption.cryptage(menuPropos, clefNum)
+        sp7Cryption.close()
+    else:
+        if racineFichiers != '':
+            sp7Cryption = Sp7Cryption(ressources + racineFichiers)
+            texteCryptej = sp7Cryption.cryptage(menuPropos, clefNum)
+            sp7Cryption.close()
+            texteDejcryptage = 'Et voici le menu propos originel :'
+        else: 
+            texteCryptej = ''
+            texteDejcryptage = 'Malheureusement, la clef de dejcryptage a ejté dejfinitivement perdue... Nous sommes dejsolejs.'
+        
+# la trace
+if soumettre: texte = ' '.join(menuPropos.splitlines()).replace('|', ' ')
+else : texte = ''
+fichierTrace = path.join(path.dirname(path.realpath(__file__)), '..', 'ressources/traces.csv')
+timbreDeTemps = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+if 'REMOTE_ADDR' in environ: adrIp = environ['REMOTE_ADDR']
+else: adrIp = ''
+if 'REMOTE_PORT' in environ: port = environ['REMOTE_PORT']
+else: port = ''
+if 'HTTP_USER_AGENT' in environ: agent = environ['HTTP_USER_AGENT']
+else: agent = ''
+with open(fichierTrace, 'a') as trace:
+    trace.write(f'{timbreDeTemps} | {adrIp} | {port} | {agent} | {clefNum} / {racineFichiers} | {texte}\n')
+
+        
+# l'en-teste
+print("""
+    <html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+    <title>quasi S+7</title>
+    <link rel="icon" type="image/png" href="../ressources/faviconLaR.png"/>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <style type="text/css">
+    .ta1 { width:100%; height:400px; overflow:auto; font-size: 16pt; color:darkgreen; font-family: Tahoma, sans-serif; background-color: White; } 
+    .ta11 { width:100%; overflow:auto; font-size: 14pt; color:darkgreen; font-family: Tahoma, sans-serif; background-color: White; } 
+    .ta2 { width:100%; height:400px; overflow:auto; font-size: 16pt; color:darkred; font-family: Tahoma, sans-serif; background-color: lightgrey; } 
+    .ta21 { width:100%; overflow:auto; font-size: 14pt; color:darkred; font-family: Tahoma, sans-serif; background-color: lightgrey;} 
+    .ta3 { width:100%; height:400px; overflow:auto; font-size: 16pt; color:darkblue; font-family: Tahoma, sans-serif; background-color: lightgrey; } 
+    a:link { text-decoration:none; } 
+    sti { color:black;  font-size: 35pt; margin: 0%%; font-weight:normal; font-style: italic;}
+    sti2 { color:black;  font-size: 25pt; margin: 0%%; font-weight:normal; font-style: italic;}
+    mi1, .mi1 { color:black; font-size: 16pt; margin: 0%%; font-weight:normal; }
+    mi2, .mi2 { color:darkred; font-size: 16pt; margin: 0%%; font-weight:normal; }
+    mi3, .mi3 { color:darkgreen; font-size: 16pt; margin: 0%%; font-weight:normal; }
+    mi4, .mi4 { color:black; font-size: 16pt; margin: 0%%; font-weight:bold; }
+    mi5, .mi5 { color:darkred }
+    mi6, .mi6 { color:darkgreen }
+    mi7, .mi7 { color:darkblue }
+    mi8, .mi8 { color:darkblue; font-size: 16pt; margin: 0%%; font-weight:normal; }
+    #af1 {margin-top: 20px; margin-bottom: 20px; margin-right: 100px; margin-left: 50px; background-color: White; }
+    #af2 {margin-top: 20px; margin-bottom: 20px; margin-right: 100px; margin-left: 100px; background-color: White; }
+    #af3 {margin-top: 20px; margin-bottom: 20px; margin-right: 100px; margin-left: 50px; background-color: White; }
+    button {padding: 0; border: none; background: none;}
+    </style>
+    </head>
+    """)
+# le titre
+print("""
+    <body>
+    <form action="QuasiSp7" method="post">
+    <img alt="../ressources/quasiCryption-100.png" src="../ressources/quasiCryption-100.png"  style="float:right;"/> 
+    <table><tr><td><sti>la quasi-cryption de </sti></td><td><img src="../ressources/echiquierLatejcon4-200T.png"/></td></tr><tr><td><sti2> par un S+7 quasi-lescurien</sti2></td></tr></table>
+""")
+
+
+# le mode d'emploi
+print("""
+    <div id="af3">
+    <br/>
+    <input type="submit" name="modedEmploi" value="mode d'emploi" style="font-size: 10pt"/>
+    """)
+if modedEmploi:
+    print("""
+        <i>Pour masquer ce mode d'emploi, cliquez sur le bouton <b>mode d'emploi</b>.</i>
+        <br/>La quasi-cryption de l'Atejcon est quasi parce qu'elle utilise un cryptage symejtrique à clef publique (pour les non-spejcialistes, c'est là qu'il convient de sourire &#128512;). Quant à la clef de cryptage, c'est un hommage direct, franc, massif et enthousiaste au S+7 oulipien de Jean Lescure. 
+        <img style="float:left;margin-right:20" alt="../ressources/sp7CasUtilisation-300.png" src="../ressources/sp7CasUtilisation-300.png"/>
+        <br/><br/>Voici le cas d'utilisation complet de la quasi-cryption:
+        <ol>
+        <li>La personne latejconnienne ejmettrice ejcrit son menu propos.</li>
+        <li>Elle le soumet à la quasi-cryption et rejcupehre un message quasi-crypté.</li>
+        <li>Elle rit.</li>
+        <li>Elle envoie le message quasi-crypté à la personne latejconnienne rejceptrice.</li>
+        <li>Laquelle rit.</li>
+        <li>Puis soumet le message quasi-crypté reçu à la quasi-cryption.</li>
+        <li>Et elle rejcupehre le menu propos originel et sans doute original.</li>
+        </ol>
+        <ul>
+        <li>Pour quasi-encrypter un menu propos en français, entrez-le ou soumettez-le par un habile copier-coller dans la zone ci-dessous (<mi6>il s'affiche en vert</mi6>) puis actionnez le quasi-encryptage par <i>le bouton <b>soumettre</b></i>. Le texte quasi-encrypté s'affiche à la place du menu propos (<mi5>il s'affiche en rouge</mi5>). </li>
+        <li><i>Les boutons <b>+</b>, <b>-</b>, <b>&#171;</b>, <b>&#187;</b> et <b>0</b></i> permettent de changer la clef et d'avoir un nouveau cryptage et donc un nouveau texte. Lorsque la satisfaction est là &#128578;, sauvegardez le texte quasi-encrypté par un habile copier-coller et envoyer le à son destinataire. Pour que le message puisse estre dejcrypté, il convient d'envoyer aussi la clef de dejcryptage dans son entiehreté. </li>
+        <li>Pour quasi-dejcrypter un texte reçu, il faut avoir aussi reçu la clef de dejcryptage. Soumettez le texte par un habile copier-coller dans la zone ci-dessous (<mi6>il s'affiche en vert</mi6>), faites de mesme avec la clef de dejcryptage dans la zone idoine, puis actionnez le quasi-dejcryptage par <i>le bouton <b>soumettre</b></i>. Le menu propos d'origine s'affiche à la place du texte encrypté (<mi7>il s'affiche en bleu</mi7>).</li>
+        <li>Pour revenir à l'ejcran originel de saisie, actionnez <i>le bouton <b>modifier</b></i>.</li>
+        </ul>
+        <i>Explications : </i>comme avec le S+7 originel, seuls les substantifs sont substituejs. Par contre, il n'y a pas de changement de genre : un substantif fejminin est remplacé par un substantif fejminin et un substantif masculin est remplacé par un substantif masculin. (c'est pour ça, pour cette limitation fonctionnelle, que c'est quasi-lescurien).
+        <br/>Pour en savoir plus, vous pouvez consulter les <i><a target="_blank" href="https://latejcon.art/498X-quasiCryption-specs.pdf">spejcifications fonctionnelles de la quasi-cryption</a></i>.
+    """)
+print('</div>')
+
+if ejtat == 'enSaisie':
+    print('<div id="af1">')
+    print('<p class="mi2"> Entrez ou copiez ci-dessous le menu propos à quasi-encrypter ou le message à quasi-dejcrypter<br/>')
+    print(f'<textarea class="ta1" name="texteSaisi">{menuPropos}</textarea><br/>')
+    print('<p class="mi2"> En cas de quasi-dejcryptage, entrez la clef idoine <br/>')
+    print(f'<textarea class="ta11" name="clefSaisie" rows="2">{clefSaisie}</textarea><br/>')
+    print('<input type="submit" name="soumettre" value="soumettre" style="font-size: 16pt"/>')
+    print('</div>')
+elif ejtat == 'enCryptage':
+    print('<div id="af1">')
+    print('<p class="mi3">Et voici ce que ça donne :<br/>')
+    print(f'<textarea class="ta2" name="texteCalculej" readonly>{texteCryptej}</textarea><br/>')
+    print('ajuster la <input type="submit" name="moins" value="&nbsp;&nbsp;-&nbsp;&nbsp;" style="font-size: 16pt; font-weight: bold"/>')
+    print(' clef ')
+    print('<input type="submit" name="plus" value="&nbsp;&nbsp;+&nbsp;&nbsp;" style="font-size: 16pt; font-weight: bold"/> de quasi-cryptage ')
+    print('<input type="submit" name="autrePlus" value="&nbsp;&nbsp;&#171;&nbsp;&nbsp;" style="font-size: 16pt; font-weight: bold"/>&nbsp;&nbsp;')
+    print('<input type="submit" name="autreMoins" value="&nbsp;&nbsp;&#187;&nbsp;&nbsp;" style="font-size: 16pt; font-weight: bold"/> ou ')
+    print('<input type="submit" name="zejro" value="&nbsp;&nbsp;0&nbsp;&nbsp;" style="font-size: 16pt; font-weight: bold"/>')
+    print('<p class="mi3">Avec la clef de dejcryptage (à transmettre telle quelle) :<br/>')
+    print(f'<textarea class="ta21" name="clefCalculej" readonly rows="2">{ClefCryptage}</textarea><br/>')    
+    print('<input type="submit" name="modifier" value="modifier" style="font-size: 16pt"/> le menu propos&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;')
+    print('</div>')
+else:
+    print('<div id="af1">')
+    print(f'<p class="mi3">{texteDejcryptage}<br/>')
+    print(f'<textarea class="ta3" name="texteCalculej" readonly>{texteCryptej}</textarea><br/>')
+    print('<input type="submit" name="modifier" value="modifier" style="font-size: 16pt"/> le message')
+    print('</div>')
+   
+
+# passage de l'ejtat
+if ejtat: print(f'<input type="hidden" name="ejtat" value="{ejtat}"/>')
+if clef: print(f'<input type="hidden" name="clef" value="{clef}"/>')
+if version: print(f'<input type="hidden" name="version" value="{version}"/>')
+#if not modedEmploi: print(f'<input type="hidden" name="sansModedEmploi" value="1"/>')
+if modedEmploi: print(f'<input type="hidden" name="avecModedEmploi" value="1"/>')
+if menuPropos: 
+    menuPropos = menuPropos.replace('"', '&quot;')
+    print(f'<input type="hidden" name="menuPropos" value="{menuPropos}"/>')
+if texteDejcryptage:
+    print(f'<input type="hidden" name="texteDejcryptage" value="{texteDejcryptage}"/>')
+if texteCryptej: 
+    texteCryptej = texteCryptej.replace('"', '&quot;')
+    print(f'<input type="hidden" name="texteCryptej" value="{texteCryptej}"/>')
+if ClefCryptage:
+    print(f'<input type="hidden" name="ClefCryptage" value="{ClefCryptage}"/>')
+
+print('</form></body></html>')

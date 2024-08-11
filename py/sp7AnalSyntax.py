@@ -9,7 +9,6 @@ from codecs import open
 import re
 from QcLexique import QcLexique
 from QcRejtroLexique import QcRejtroLexique
-from QcRejtroLexique import QcRejtroLexique
 from Sp7Formes import Sp7Formes
 from Sp7Lemmes import Sp7Lemmes
 from Sp7Formes import L_ADJ, L_ADV, L_CONJ, L_DET, L_DIVERS, L_INTERJ
@@ -17,16 +16,21 @@ from Sp7Formes import L_NC, L_NP, L_PONCTU, L_PREP, L_PRON, L_V
 from Sp7Formes import MASCULIN, FEJMININ, SINGULIER, PLURIEL, PERS_1, PERS_2, PERS_3
 from Sp7Formes import INFINITIF, PART_PASSEJ, PART_PREJSENT, IMPEJRATIF, CONJUGUEJ
 from Sp7Formes import COPULE
-import sp7Modehles 
+import sp7Modehles
 
 def usage():
     script = '$PY/' + path.basename(sys.argv[0])
     print (f"""© l'ATEJCON.
 Analyse syntaxique de phrases.
+De base, les substantifs et leur groupe nominal sont affichés
+en alternance de couleurs bleue et rouge.
+Ainsi que le texte post-substitution.
+Il y a possibilité d'avoir plusieurs niveaux de traces supplémentaires 
+(A, B, C, D), le niveau D étant par défaut.
 
-usage   : {script} <racine fichiers> <texte ou fichier texte>
+usage   : {script} <racine fichiers> <texte ou fichier texte> [<trace(A,B,C)>]
 usage   : {script} Splus7 "les familles heureuses se ressemblent toutes"
-usage   : {script} Splus7 MadameBovary.txt 
+usage   : {script} Splus7 MadameBovary.txt B
 """)
 
 def main():
@@ -34,7 +38,11 @@ def main():
         if len(sys.argv) < 3 : raise Exception()
         racine = sys.argv[1]
         texteOuFichier = sys.argv[2]
-        analyses(racine, texteOuFichier)
+        trace = 'D'
+        if len(sys.argv) > 3 : 
+            trace = sys.argv[3]
+            if trace not in ('ABCD'): raise Exception()
+        analyses(racine, texteOuFichier, trace)
     except Exception as exc:
         if len(exc.args) == 0: usage()
         else:
@@ -66,19 +74,19 @@ txt = {0 : "-", MASCULIN : "m", FEJMININ : "f", SINGULIER : "s", PLURIEL : "p",
         INFINITIF : "IN", PART_PASSEJ : "PP", PART_PREJSENT : "PR", IMPEJRATIF : "IM",
         CONJUGUEJ : "CJ"}
 
-def analyses(racine, texteOuFichier):
+def analyses(racine, texteOuFichier, trace):
     if path.isfile(texteOuFichier):
         with open(texteOuFichier, 'r', 'utf-8') as texteEnFichier:
             for texte in texteEnFichier:
                 texte = texte.strip()
                 if texte == "": continue
-                analyseParagraphe(racine, texte)  
+                analyseParagraphe(racine, texte, trace)  
                 # clique pour § suivant
                 input('')
     else:
-        analyseParagraphe(racine, texteOuFichier)
+        analyseParagraphe(racine, texteOuFichier, trace)
     
-def analyseParagraphe(racine, texteOuFichier):
+def analyseParagraphe(racine, texteOuFichier, trace):
     # ouvre le lexique, rejtrolexique et les fichiers de formes et de lemmes 
     qcLexique = QcLexique(f'{racine}.sp7lexique')
     qcRejtroLexique = QcRejtroLexique(f'{racine}.sp7rejtrolexique')
@@ -100,35 +108,47 @@ def analyseParagraphe(racine, texteOuFichier):
         phrase2 = phrase2.replace("'", "' ")
         # Ejtiquette la phrase
         phraseEjtiqueteje = []
-        # sejpare tous les mots du texte par espaces, tirets, points et apostrophes
-        mots = re.split("\s+|-|\"|\.+|\(|\)|;|,", phrase2)
+        # sejpare tous les mots du texte par espaces, points et apostrophes, pas les tirets
+        mots = re.split("\s+|\"|\.+|\(|\)|;|,", phrase2)
+        indexDansPhrase = 0
         for mot in mots:
             mot = mot.strip()
             if mot == '': continue
+            # trouve son index dans la phrase d'origine
+            indexDansPhrase = phrase.find(mot, indexDansPhrase)
             # creje l'entreje
-            phraseEjtiqueteje.append([mot, [], {}, ''])
+            phraseEjtiqueteje.append([mot, indexDansPhrase, [], {}, ''])
             # trouve l'identifiant de la forme 
             identifiantForme = qcLexique.trouveIdentifiant(mot.lower())
             # si forme inconnue, raf
             if identifiantForme == 0: continue
             # trouve les propriejtejs de la forme
             propriejtejs = sp7Formes.trouveDonnejes(identifiantForme)
-            ejtiquettes = set()
-            macrolemmes = set()
+            #print('propriejtejs=', propriejtejs)
             for (identifiantLemme, macro, genre, nombre, personne, temps, divers) in propriejtejs:
                 ejtiquette = txtMacro[macro] + txt[genre] + txt[nombre]
-                phraseEjtiqueteje[-1][2][ejtiquette] = identifiantLemme
-            ejtiquettes = list(phraseEjtiqueteje[-1][2].keys())
-            phraseEjtiqueteje[-1][1] = ejtiquettes
-        #print (phraseEjtiqueteje)
+                phraseEjtiqueteje[-1][3][ejtiquette] = identifiantLemme
+            ejtiquettes = list(phraseEjtiqueteje[-1][3].keys())
+            phraseEjtiqueteje[-1][2] = ejtiquettes
+        if trace in 'A': print ('\nphraseEjtiqueteje1=', phraseEjtiqueteje)
+        # invalide les NCxx interdits et les NCxx commencant par une majuscule
+        for idxMot in range(len(phraseEjtiqueteje)):
+            (mot, index, ejtiquettes, ejtiqlemmes, choix) = phraseEjtiqueteje[idxMot]
+            if mot[0].islower() and mot not in sp7Modehles.sp7NcInterdits: continue
+            nouvelleEjtiquettes = []
+            for ejtiquette in ejtiquettes: 
+                if not ejtiquette.startswith('NC'): nouvelleEjtiquettes.append(ejtiquette)
+            phraseEjtiqueteje[idxMot][2] = nouvelleEjtiquettes
+        if trace in 'A': print ('\nphraseEjtiqueteje2=', phraseEjtiqueteje)
+        # affiche la phrase ejtiqueteje en plus clair        
         affichageEjtiquetej = ""
-        for [mot, ejtiquettes, ejtiqlemmes, choix] in phraseEjtiqueteje:
+        for (mot, index, ejtiquettes, ejtiqlemmes, choix) in phraseEjtiqueteje:
             affichageEjtiquetej += f'{BLEU}{mot}{NORMAL} ' + ' '.join(ejtiquettes) + ' '
             for (ejtiq, identLemme) in ejtiqlemmes.items():
                 affichageEjtiquetej += f'({ejtiq} : {identLemme}) '
-        #print(affichageEjtiquetej)
+        if trace in 'A': print('\naffichageEjtiquetej=', affichageEjtiquetej)
         
-        # Essaie tous les modehles au dejbut de chaque mot
+        # Essaie tous les modehles ah partir de chaque mot
         modehlesOk = []
         for idx1erMot in range(len(phraseEjtiqueteje)):
             for sp7Modehle in sp7Modehles.sp7Modehles :
@@ -137,79 +157,87 @@ def analyseParagraphe(racine, texteOuFichier):
                     # si fin de texte avant fin de modehle, modehle suivant
                     if idx1erMot + idxMod == len(phraseEjtiqueteje): break
                     # si mot hors modehle, modehle suivant
-                    if modehle[idxMod] not in phraseEjtiqueteje[idx1erMot + idxMod][1]: break
-                    # si arrivej au bout du modhle, c'est gagnej !
+                    if modehle[idxMod] not in phraseEjtiqueteje[idx1erMot + idxMod][2]: break
+                    # si arrivej au bout du modehle, c'est gagnej !
                     if idxMod == len(modehle) -1:  
                         modehlesOk.append((modehle, idx1erMot))
-        #print(modehlesOk)
+        if trace in ('AB'): print('\nmodehlesOk1=', modehlesOk)
         
         # fait le mejnage dans les modehles
-        modehlesParMot = [[] for x in range(len(phraseEjtiqueteje))]
-        for idxModOk in range(len(modehlesOk)):
-            (modehle, idx1erMot) = modehlesOk[idxModOk]
-            for idxMod in range(len(modehle)):
-                modehlesParMot[idx1erMot + idxMod].append(idxModOk)
-        # vire les modehles en collision
         aEffacer = []
-        for numModehles in modehlesParMot:
-            if len(numModehles) <2 : continue
-            refModehle = numModehles[0]
-            for numModehle in numModehles[1:]:
-                if len(modehlesOk[numModehle][0]) < len(modehlesOk[refModehle][0]):
-                    aEffacer.append(numModehle)
-                elif len(modehlesOk[numModehle][0]) > len(modehlesOk[refModehle][0]):
-                    aEffacer.append(refModehle)
-                    refModehle = numModehle
-                else:
-                    aEffacer.append(numModehle)
-                    aEffacer.append(refModehle)
-        aEffacer= list(set(aEffacer))
-        aEffacer.sort(reverse=True)
-        for numEffacej in aEffacer: modehlesOk.pop(numEffacej)
-        #print(modehlesOk)
-        
+        # les modehles ejtant uniques, il ne peut y avoir de doublon dans la liste
+        for (modehleA, idx1erMotA) in modehlesOk:
+            for (modehleB, idx1erMotB) in modehlesOk:
+                # si 2 modehles sont supeposables, on verra plus tard
+                if idx1erMotA == idx1erMotB and len(modehleA) == len(modehleB): continue
+                # on vire si un modhele est inclus dans l'autre
+                if idx1erMotA <= idx1erMotB and idx1erMotA + len(modehleA) >= idx1erMotB + len(modehleB):
+                    aEffacer.append((modehleB, idx1erMotB))
+                elif idx1erMotB <= idx1erMotA and idx1erMotB + len(modehleB) >= idx1erMotA + len(modehleA):
+                    aEffacer.append((modehleA, idx1erMotA))
+        if trace in ('AB'): print('\naEffacer=', aEffacer)
+        for numEffacej in aEffacer: 
+            if numEffacej in modehlesOk: modehlesOk.remove(numEffacej)
+        if trace in ('AB'): print('\nmodehlesOk2=', modehlesOk)
+        # garde uniquement le dernier des superposables
+        if len(modehlesOk) != 0:
+            aEffacer = []
+            (modehleA, idx1erMotA) = modehlesOk[0]
+            for (modehleB, idx1erMotB) in modehlesOk[1:]:
+                if idx1erMotA == idx1erMotB and len(modehleA) == len(modehleB):
+                    aEffacer.append((modehleA, idx1erMotA))
+                (modehleA, idx1erMotA) = (modehleB, idx1erMotB)
+            for numEffacej in aEffacer: 
+                if numEffacej in modehlesOk: modehlesOk.remove(numEffacej)
+        if trace in ('AB'): print('\nmodehlesOk3=', modehlesOk)
+        # vejrifie les chevauchements
+        for (modehleA, idx1erMotA) in modehlesOk:
+            for (modehleB, idx1erMotB) in modehlesOk:
+                if idx1erMotB > idx1erMotA and idx1erMotB < idx1erMotA + len(modehleA):
+                    print('CHEVAUCHEMENT :', (modehleA, idx1erMotA), (modehleB, idx1erMotB))
+                if idx1erMotB + len(modehleB) > idx1erMotA and idx1erMotB + len(modehleB) < idx1erMotA + len(modehleA):
+                    print('CHEVAUCHEMENT :', (modehleA, idx1erMotA), (modehleB, idx1erMotB))
+         
         # ejtablit le plan de substitution
         substantifs = []
         for (modehle, idx1erMot) in modehlesOk:
             numsGenre = []
             for idxMod in range(len(modehle)):
-                phraseEjtiqueteje[idx1erMot + idxMod][3] = modehle[idxMod]
+                phraseEjtiqueteje[idx1erMot + idxMod][4] = modehle[idxMod]
                 if modehle[idxMod][:2] == 'NC': numSubs = idx1erMot + idxMod
                 if modehle[idxMod][-2:-1] in ('f', 'm'): numsGenre.append(idx1erMot + idxMod)
             substantifs.append((numSubs, numsGenre))
-        #print(substantifs)
-        #print(phraseEjtiqueteje)
+        if trace in ('ABC'): print('\nsubstantifs=', substantifs)
+        if trace in ('ABC'): print('\nphraseEjtiqueteje=', phraseEjtiqueteje)
         
         # affiche phrase analyseje
         phraseCouleur = phrase
         coulSubs = [ROUGE_SUBS, BLEU_SUBS]
         coulGenr = [ROUGE_GENR, BLEU_GENR]
         nbSubst = 0
-        enCours = len(phraseCouleur)
         for (numSubs, numsGenre) in substantifs[::-1]:
             nbSubst +=1
             for numMot in numsGenre[::-1]:
                 mot = phraseEjtiqueteje[numMot][0]
                 if numMot == numSubs: couleur = coulSubs[nbSubst%2]
                 else: couleur = coulGenr[nbSubst%2]
-                enCours = phraseCouleur.rfind(mot, 0, enCours)
+                indexMot = phraseEjtiqueteje[numMot][1]
                 nouveauMot = f'{couleur}{mot}{NORMAL}'
-                phraseCouleur = phraseCouleur[:enCours] + phraseCouleur[enCours:].replace(mot, nouveauMot, 1)
-        #print(phraseCouleur)
+                phraseCouleur = phraseCouleur[:indexMot] + phraseCouleur[indexMot:].replace(mot, nouveauMot, 1)
+        if trace in ('ABCD'): print('\n', phraseCouleur)
         #print (hexString(phraseCouleur))
         
         #substitution des NC
         phraseSubs = phrase
-        enCours = len(phraseSubs)
         for (numSubs, numsGenre) in substantifs[::-1]:
             # le NC d'origine
-            ejtiquette = phraseEjtiqueteje[numSubs][3]
+            ejtiquette = phraseEjtiqueteje[numSubs][4]
             #print('mot=', phraseEjtiqueteje[numSubs][0])
             #print('ejtiquette=', ejtiquette)
             pluriel = ejtiquette[-1] == 'p'
             masculin = ejtiquette[-2] == 'm'
-            # trouve le lemme du NC substitej
-            idLemmeNC = phraseEjtiqueteje[numSubs][2][ejtiquette]
+            # trouve le lemme du NC substituej
+            idLemmeNC = phraseEjtiqueteje[numSubs][3][ejtiquette]
             # si le lemme est inconnu, on ne fait rien
             if idLemmeNC == 0: continue
             # trouve le NC substituant
@@ -226,17 +254,23 @@ def analyseParagraphe(racine, texteOuFichier):
                 if macro != L_NC: continue
                 descFormes = sp7Lemmes.trouveDonnejes(idLemmeNC)
                 for (identifiantForme, genre, nombre) in descFormes:
-                    # True si genres diffejrents
+                    # True si genres diffejrents, nombres diffejrents
                     if masculin ^ (genre == MASCULIN): continue
-                # de mesme genre ?
-                if masculin ^ (genre == FEJMININ): compteur -=1                
-            # on a le nouveau NC et ses formes
-            nouveauNC = 'ERREUR1'
-            for (identifiantForme, genre, nombre) in descFormes:
-                # trouve la forme qui a le mesme nombre et le mesme genre
-                if (pluriel ^ (nombre == SINGULIER)) and (masculin ^ (genre == FEJMININ)): 
+                    if pluriel ^ (nombre == PLURIEL): continue
                     nouveauNC = qcRejtroLexique.trouveGraphie(identifiantForme)
+                    # si graphie interdite, on la saute
+                    if nouveauNC in sp7Modehles.sp7NcInterdits: continue
+                    compteur -=1
                     break
+                ## de mesme genre ?
+                #if masculin ^ (genre == FEJMININ): compteur -=1                
+            ## on a le nouveau NC et ses formes
+            #nouveauNC = 'ERREUR1'
+            #for (identifiantForme, genre, nombre) in descFormes:
+                ## trouve la forme qui a le mesme nombre et le mesme genre
+                #if (pluriel ^ (nombre == SINGULIER)) and (masculin ^ (genre == FEJMININ)): 
+                    #nouveauNC = qcRejtroLexique.trouveGraphie(identifiantForme)
+                    #break
             changementGenre = masculin ^ (genre == MASCULIN)
             #print('masculin=', masculin)
             #print('identifiantForme=', identifiantForme)
@@ -246,13 +280,13 @@ def analyseParagraphe(racine, texteOuFichier):
             # changement du groupe nominal
             for numMot in numsGenre[::-1]:
                 mot = phraseEjtiqueteje[numMot][0]
+                indexMot = phraseEjtiqueteje[numMot][1]
                 if numMot == numSubs:
-                    enCours = phraseSubs.rfind(mot, 0, enCours)
-                    phraseSubs = phraseSubs[:enCours] + phraseSubs[enCours:].replace(mot, f'{BLEU}{nouveauNC}{NORMAL}', 1)
+                    phraseSubs = phraseSubs[:indexMot] + phraseSubs[indexMot:].replace(mot, f'{BLEU}{nouveauNC}{NORMAL}', 1)
                 elif changementGenre:
                     # remplacement des changements de genres
-                    ejtiquette = phraseEjtiqueteje[numMot][3]
-                    idLemme = phraseEjtiqueteje[numMot][2][ejtiquette]
+                    ejtiquette = phraseEjtiqueteje[numMot][4]
+                    idLemme = phraseEjtiqueteje[numMot][3][ejtiquette]
                     descFormes = sp7Lemmes.trouveDonnejes(idLemme)
                     nouveauMot = 'ERREUR2'
                     for (identifiantForme, genre, nombre) in descFormes:
@@ -262,10 +296,9 @@ def analyseParagraphe(racine, texteOuFichier):
                         if (pluriel ^ (nombre == PLURIEL)) or (masculin ^ (genre == FEJMININ)): continue
                         nouveauMot = qcRejtroLexique.trouveGraphie(identifiantForme)
                         break
-                    enCours = phraseSubs.rfind(mot, 0, enCours)
-                    phraseSubs = phraseSubs[:enCours] + phraseSubs[enCours:].replace(mot, nouveauMot, 1)
+                    phraseSubs = phraseSubs[:indexMot] + phraseSubs[indexMot:].replace(mot, nouveauMot, 1)
                 else: continue
-        print(phraseSubs)
+        print('\n', phraseSubs)
         
     sp7Lemmes.close()
     sp7Formes.close()

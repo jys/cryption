@@ -26,6 +26,10 @@ def usage():
     print (f"""© l'ATEJCON.
 Construction les fichiers plats de la quasi-cryption Sp7 de l'Atejcon 
 avec analyse syntaxique.
+Les données sont prises dans la base SQL ou dans le fichier Sp7.npy.
+Pour reconstruire suite à changement dans la base, effacer Sp7.npy.
+Filtrage des Ncxx par le fichier <racine>-sp7-filtrageGraphies.txt,
+pas de filtrage si pas de fichier.
 Les fichiers plats sont :
     <racine>.sp7lexique
     <racine>.sp7rejtrolexique
@@ -33,7 +37,7 @@ Les fichiers plats sont :
     <racine>.sp7rejtroformes
 
 usage   : {script} <racine fichiers> 
-usage   : {script} Splus7
+usage   : {script} complet
 """)
     
 def main():
@@ -89,26 +93,25 @@ L_VERBE_MODALITE_IMPERATIF = 1571
 L_VERBE_COPULE_IMPERATIF = 1577
 
 TAILLE_HASH = 100019
-nomFichierFiltreGraphies = 'Sp7FiltreGraphies.txt'
     
 def construit(racine):
     # 1) si la sauvegarde numpy n'est pas lah, la creje
-    nomNumpy = racine + '.npy'
+    nomNumpy = 'Sp7.npy'
     if not path.isfile(nomNumpy):
         base = LateconResLingBase.LateconResLingBase()
         lesFormesSql = list(trouveFormes(base))
         base.close()
-        print(f"{len(lesFormesSql)} formes trouvées dans la base de l'Atejcon")
+        print("{:6d} formes trouvées dans la base de l'Atejcon".format(len(lesFormesSql)))
         npLesFormes = numpy.array(lesFormesSql)
         numpy.save(nomNumpy, npLesFormes)
     
     # 2) lit la sauvegarde numpy pour aller ah toute berzingue
     npLesFormes = numpy.load(nomNumpy, allow_pickle=True)
     lesFormesSql = npLesFormes.tolist()
-    print(f'{len(lesFormesSql)} formes retrouvées')
+    print("{:6d} formes retrouvées".format(len(lesFormesSql)))
     
     # 3) creje le lexique 
-    print(f'  Création du {racine}.sp7lexique') 
+    print(' '*7 + f'Création du {racine}.sp7lexique') 
     qcLexique = QcLexique(f'{racine}.sp7lexique', True, TAILLE_HASH)
     for (grform, grlem, macrocat, macro_micro, genre, nombre, personne, temps) in lesFormesSql:
         if macrocat not in (L_ADJ, L_ADV, L_CONJ, L_DET, L_NC, L_NP, L_PREP, L_PRON, L_V): continue
@@ -124,10 +127,10 @@ def construit(racine):
     qcLexique = QcLexique(f'{racine}.sp7lexique')
     # vidage du lexique complet
     motsIdentifiants = qcLexique.vidage()
-    print(f'{len(motsIdentifiants)} mots-identifiants trouvés')
+    print("{:6d} mots-identifiants trouvés".format(len(motsIdentifiants)))
     # rejcupehre identification systehme
     (maxIdentifiant, identifieurUnique) = qcLexique.donneIdentificationFichier()
-    print(f'  Création du {racine}.sp7rejtrolexique') 
+    print(' '*7 + f'Création du {racine}.sp7rejtrolexique') 
     qcRejtroLexique = QcRejtroLexique(f'{racine}.sp7rejtrolexique', True, len(motsIdentifiants))
     for (identifiant, mot) in motsIdentifiants:
         qcRejtroLexique.ajouteIdMot(identifiant, mot)
@@ -142,31 +145,37 @@ def construit(racine):
     qcRejtroLexique.close()
     
     # 5) ejtablit la structure des lemmes
-    print(f'  Création du {racine}.sp7lemmes') 
+    print(' '*7 + f'Création du {racine}.sp7lemmes') 
     # ejtablit les filtres de graphies
-    filtreGraphies = set()
-    with open(nomFichierFiltreGraphies, 'r', 'utf8') as fichierFiltreGraphies:
-        for ligne in fichierFiltreGraphies:
-            ligne = ligne.strip()
-            if ligne == '': continue
-            filtreGraphies.add(ligne)
-    print(f'{len(filtreGraphies)} graphies prises en compte dans le filtrage')
-    ejquiv = {L_MASC : MASCULIN, L_FEM : FEJMININ, L_SING : SINGULIER, L_PLUR : PLURIEL}
+    nomFichierFiltreGraphies = f'{racine}-sp7-filtrageGraphies.txt'
+    avecFiltage = path.isfile(nomFichierFiltreGraphies)
+    if avecFiltage:
+        filtreGraphies = set()
+        with open(nomFichierFiltreGraphies, 'r', 'utf8') as fichierFiltreGraphies:
+            for ligne in fichierFiltreGraphies:
+                ligne = ligne.strip()
+                if ligne == '': continue
+                filtreGraphies.add(ligne)
+        print("{:6d} graphies prises en compte dans le filtrage".format(len(filtreGraphies)))
+    else:
+        print(' '*7 + 'Pas de filtrage des graphies des Ncxx')
     # un lemme, c'est une graphie + une macrocat
+    ejquiv = {L_MASC : MASCULIN, L_FEM : FEJMININ, L_SING : SINGULIER, L_PLUR : PLURIEL}
     compt = 0
     lesLemmes = {}
     for (grform, grlem, macrocat, macro_micro, genre, nombre, personne, temps) in lesFormesSql:
-        if macrocat not in (L_ADJ, L_DET, L_NC, L_PRON, L_V): continue
+        #if macrocat not in (L_ADJ, L_DET, L_NC, L_PRON, L_V): continue
+        if macrocat not in (L_NC,): continue
         if genre not in (L_MASC, L_FEM): continue
         if nombre not in (L_SING, L_PLUR): continue
-        if macrocat == L_NC and grlem not in filtreGraphies : continue
+        if avecFiltage and macrocat == L_NC and grlem not in filtreGraphies : continue
         # les donnejes
         identForme = qcLexique.trouveIdentifiant(grform)
         descForme = (identForme, ejquiv[genre], ejquiv[nombre])
         if (grlem, macrocat) not in lesLemmes: lesLemmes[(grlem, macrocat)] = [0, []]
         lesLemmes[(grlem, macrocat)][1].append(descForme)
         compt +=1
-    print(f'{compt} formes prises en compte')
+    print("{:6d} formes prises en compte".format(compt))
     # numejrote les lemmes
     tousLesLemmes = list(lesLemmes.keys())
     tousLesLemmes.sort()
@@ -182,10 +191,10 @@ def construit(racine):
         sp7Lemmes.ajouteLemme(identLemme, macrocat, list(set(descFormes)))
     sp7Lemmes.ejcritIdentificationFichier(maxIdentifiant, identifieurUnique)
     sp7Lemmes.close()
-    print(f'{len(lesLemmes)} lemmes pris en compte')
+    print("{:6d} lemmes pris en compte".format(len(lesLemmes)))
     
     # 7) ejtablit la structure des formes
-    print(f'  Création du {racine}.sp7formes') 
+    print(' '*7 + f'Création du {racine}.sp7formes') 
     ejquiv = {L_MASC : MASCULIN, L_FEM : FEJMININ, L_SING : SINGULIER, 
               L_PLUR : PLURIEL, L_1 : PERS_1, L_2 : PERS_2, L_3 : PERS_3, None : 0}
     compt = 0
@@ -237,7 +246,7 @@ def construit(racine):
         if identForme not in lesFormes: lesFormes[identForme] = []
         lesFormes[identForme].append(descForme)
         compt +=1
-    print(f'{compt} formes prises en compte')
+    print("{:6d} formes prises en compte".format(compt))
         
     # 8) creje le fichier des formes
     sp7Formes = Sp7Formes(f'{racine}.sp7formes', True, maxIdentifiant)
@@ -249,7 +258,7 @@ def construit(racine):
     sp7Formes.ejcritIdentificationFichier(maxIdentifiant, identifieurUnique)
     sp7Formes.close()
     qcLexique.close()
-    print(f'{len(lesFormes)} graphies formes prises en compte')
+    print("{:6d} graphies formes prises en compte".format(len(lesFormes)))
             
 ################################
 # rejcupehre la liste des formes potentielles
