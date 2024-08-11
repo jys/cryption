@@ -81,7 +81,7 @@ if soumettre or plus or moins or zejro or autrePlus or autreMoins:
     if ejtat == 'enCryptage':
         racineFichiers = versions[versionNum][0]
         sp7Cryption = Sp7Cryption(ressources + racineFichiers)
-        ClefCryptage = f'««« clef pour dejcrypter par https://latejcon.art/Splus7 ({versions[versionNum][1]} {clefNum + 2236}) »»»'
+        ClefCryptage = f'««« clef pour dejcrypter par https://latejcon.art/splus7 ({versions[versionNum][1]} {clefNum + 2236}) »»»'
         texteCryptej = sp7Cryption.cryptage(menuPropos, clefNum)
         sp7Cryption.close()
     else:
