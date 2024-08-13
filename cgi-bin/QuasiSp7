@@ -6,6 +6,7 @@ __copyright__ = "Copyright (C) 2024 LATEJCON"
 from os import path, environ
 import datetime
 import cgi
+import urllib
 import re
 from Sp7Cryption import Sp7Cryption
 import cgitb
@@ -15,10 +16,12 @@ cgitb.enable()
 # L'en-tête qui va bien
 print("Content-Type: text/html")
 print()
+
 #print(path.abspath(path.curdir))
 
 form = cgi.FieldStorage()
 #print(form)
+
 # un dejtail d'implantation que je n'ai pas compris
 if path.abspath(path.curdir).endswith('jys/Boa/Splus7'): ressources = 'ressources/'     #local
 else: ressources = '../ressources/'               # canap de Dom
@@ -30,6 +33,14 @@ versions = (
     ('Filt0', 'mistera parentezo kun stranga latejcona hoa nombro')
     )
 # ejtablit les ejtats et les demandes
+if environ['REQUEST_METHOD'] == 'GET':
+    texteSaisi = urllib.parse.unquote_plus(environ.get('QUERY_STRING'))
+    if texteSaisi != '': soumettre = 'soumettre'
+    else: soumettre = ''
+else:
+    soumettre = form.getvalue('soumettre')
+    texteSaisi = form.getvalue('texteSaisi') or ''
+
 ejtat =  form.getvalue('ejtat') or 'enSaisie'
 clef =  form.getvalue('clef') or '7'
 clefNum = int(clef)
@@ -37,14 +48,12 @@ version =  form.getvalue('version') or '0'
 versionNum = int(version)
 modedEmploi = ('modedEmploi' in form) ^ ('avecModedEmploi' in form)
 #modedEmploi = ('modedEmploi' in form) ^ ('sansModedEmploi' not in form)
-soumettre = form.getvalue('soumettre')
 modifier = form.getvalue('modifier')
 plus = form.getvalue('plus')
 moins = form.getvalue('moins')
 autrePlus = form.getvalue('autrePlus')
 autreMoins = form.getvalue('autreMoins')
 zejro = form.getvalue('zejro')
-texteSaisi = form.getvalue('texteSaisi') or ''
 clefSaisie = form.getvalue('clefSaisie') or ''
 menuPropos = form.getvalue('menuPropos') or ''
 texteDejcryptage = form.getvalue('texteDejcryptage')  or ''
