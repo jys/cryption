@@ -34,7 +34,7 @@ versions = (
     )
 # ejtablit les ejtats et les demandes
 if environ['REQUEST_METHOD'] == 'GET':
-    texteSaisi = urllib.parse.unquote_plus(environ.get('QUERY_STRING'))
+    texteSaisi = urllib.parse.unquote(environ.get('QUERY_STRING'))
     if texteSaisi != '': soumettre = 'soumettre'
     else: soumettre = ''
 else:
@@ -128,9 +128,10 @@ print("""
     <style type="text/css">
     .ta1 { width:100%; height:400px; overflow:auto; font-size: 16pt; color:darkgreen; font-family: Tahoma, sans-serif; background-color: White; } 
     .ta11 { width:100%; overflow:auto; font-size: 14pt; color:darkgreen; font-family: Tahoma, sans-serif; background-color: White; } 
-    .ta2 { width:100%; height:400px; overflow:auto; font-size: 16pt; color:darkred; font-family: Tahoma, sans-serif; background-color: lightgrey; } 
-    .ta21 { width:100%; overflow:auto; font-size: 14pt; color:darkred; font-family: Tahoma, sans-serif; background-color: lightgrey;} 
-    .ta3 { width:100%; height:400px; overflow:auto; font-size: 16pt; color:darkblue; font-family: Tahoma, sans-serif; background-color: lightgrey; } 
+    .ta2 { width:100%; overflow:auto; font-size: 16pt; color:darkred; font-family: Tahoma, sans-serif; background-color: lightgrey; margin-bottom: 0px;} 
+    .ta21 { width:100%; overflow:auto; font-size: 14pt; color:darkred; font-family: Tahoma, sans-serif; background-color: lightgrey;}
+    .ta22 { width:100%; overflow:auto; background-color: lightgrey; margin-top: 0px;}
+    .ta3 { width:100%; overflow:auto; font-size: 16pt; color:darkblue; font-family: Tahoma, sans-serif; background-color: lightgrey;  margin-bottom: 0px;} 
     a:link { text-decoration:none; } 
     sti { color:black;  font-size: 35pt; margin: 0%%; font-weight:normal; font-style: italic;}
     sti2 { color:black;  font-size: 25pt; margin: 0%%; font-weight:normal; font-style: italic;}
@@ -192,30 +193,30 @@ print('</div>')
 
 if ejtat == 'enSaisie':
     print('<div id="af1">')
-    print('<p class="mi2"> Entrez ou copiez ci-dessous le menu propos à quasi-encrypter ou le message à quasi-dejcrypter<br/>')
+    print('<p class="mi2"> Entrez ou copiez ci-dessous le menu propos à quasi-encrypter ou le message à quasi-dejcrypter<br/></p>')
     print(f'<textarea class="ta1" name="texteSaisi">{menuPropos}</textarea><br/>')
-    print('<p class="mi2"> En cas de quasi-dejcryptage, entrez la clef idoine <br/>')
+    print('<p class="mi2"> En cas de quasi-dejcryptage, entrez la clef idoine <br/></p>')
     print(f'<textarea class="ta11" name="clefSaisie" rows="2">{clefSaisie}</textarea><br/>')
     print('<input type="submit" name="soumettre" value="soumettre" style="font-size: 16pt"/>')
     print('</div>')
 elif ejtat == 'enCryptage':
     print('<div id="af1">')
-    print('<p class="mi3">Et voici ce que ça donne :<br/>')
-    print(f'<textarea class="ta2" name="texteCalculej" readonly>{texteCryptej}</textarea><br/>')
-    print('ajuster la <input type="submit" name="moins" value="&nbsp;&nbsp;-&nbsp;&nbsp;" style="font-size: 16pt; font-weight: bold"/>')
+    print('<p class="mi3">Et voici ce que ça donne :<br/></p>')
+    print(f'<p class="ta2" name="texteCalculej"><br/>{texteCryptej}<br/><br/></p>')
+    print('<p class="ta22">ajuster la <input type="submit" name="moins" value="&nbsp;&nbsp;-&nbsp;&nbsp;" style="font-size: 16pt; font-weight: bold"/>')
     print(' clef ')
     print('<input type="submit" name="plus" value="&nbsp;&nbsp;+&nbsp;&nbsp;" style="font-size: 16pt; font-weight: bold"/> de quasi-cryptage ')
     print('<input type="submit" name="autrePlus" value="&nbsp;&nbsp;&#171;&nbsp;&nbsp;" style="font-size: 16pt; font-weight: bold"/>&nbsp;&nbsp;')
     print('<input type="submit" name="autreMoins" value="&nbsp;&nbsp;&#187;&nbsp;&nbsp;" style="font-size: 16pt; font-weight: bold"/> ou ')
-    print('<input type="submit" name="zejro" value="&nbsp;&nbsp;0&nbsp;&nbsp;" style="font-size: 16pt; font-weight: bold"/>')
-    print('<p class="mi3">Avec la clef de dejcryptage (à transmettre telle quelle) :<br/>')
-    print(f'<textarea class="ta21" name="clefCalculej" readonly rows="2">{ClefCryptage}</textarea><br/>')    
+    print('<input type="submit" name="zejro" value="&nbsp;&nbsp;0&nbsp;&nbsp;" style="font-size: 16pt; font-weight: bold"/></p>')
+    print('<p class="mi3">Avec la clef de dejcryptage (à transmettre telle quelle) :<br/></p>')
+    print(f'<p class="ta21" name="clefCalculej"><br/>{ClefCryptage}<br/><br/></p><br/>')    
     print('<input type="submit" name="modifier" value="modifier" style="font-size: 16pt"/> le menu propos&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;')
     print('</div>')
 else:
     print('<div id="af1">')
-    print(f'<p class="mi3">{texteDejcryptage}<br/>')
-    print(f'<textarea class="ta3" name="texteCalculej" readonly>{texteCryptej}</textarea><br/>')
+    print(f'<p class="mi3">{texteDejcryptage}<br/></p>')
+    print(f'<p class="ta3" name="texteCalculej"><br/>{texteCryptej}<br/><br/></p><br/>')
     print('<input type="submit" name="modifier" value="modifier" style="font-size: 16pt"/> le message')
     print('</div>')
    
