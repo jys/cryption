@@ -274,7 +274,8 @@ def trouveFormes(base):
             WHERE micro.langue={FRE} 
             AND NOT grform.graphie LIKE "%\_%" 
             AND NOT grform.graphie LIKE "%-%" 
-            AND NOT grform.graphie LIKE "% %";
+            AND NOT grform.graphie LIKE "% %"
+            AND origines_formes.origine IN (156,157);
         ''')
     return rejsultat
             #AND micro.macrocat IN ({L_NC},{L_ADV},{L_V},{L_ADJ},{L_DET},{L_PRON});

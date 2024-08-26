@@ -120,10 +120,15 @@ def analyseParagraphe(racine, texteOuFichier, trace):
             phraseEjtiqueteje.append([mot, indexDansPhrase, [], {}, ''])
             # trouve l'identifiant de la forme 
             identifiantForme = qcLexique.trouveIdentifiant(mot.lower())
-            # si forme inconnue, raf
-            if identifiantForme == 0: continue
-            # trouve les propriejtejs de la forme
-            propriejtejs = sp7Formes.trouveDonnejes(identifiantForme)
+            # si forme inconnue
+            if identifiantForme == 0: 
+                # si commence par une majuscule, considehre que c'est un NCms, NCfs
+                if mot[0].isupper(): 
+                    propriejtejs = [(0, L_NC, MASCULIN, SINGULIER, 0, 0, 0), (0, L_NC, FEJMININ, SINGULIER, 0, 0, 0)]
+                else: continue
+            else:
+                # trouve les propriejtejs de la forme
+                propriejtejs = sp7Formes.trouveDonnejes(identifiantForme)
             #print('propriejtejs=', propriejtejs)
             for (identifiantLemme, macro, genre, nombre, personne, temps, divers) in propriejtejs:
                 ejtiquette = txtMacro[macro] + txt[genre] + txt[nombre]
