@@ -142,6 +142,7 @@ print("""
     mi6, .mi6 { color:darkgreen }
     mi7, .mi7 { color:darkblue }
     mi8, .mi8 { color:darkblue; font-size: 16pt; margin: 0%%; font-weight:normal; }
+    mi9, .mi9 {font-weight:bold; font-style: italic; background-color: lightgrey;}
     #af1 {margin-top: 20px; margin-bottom: 20px; margin-right: 100px; margin-left: 50px; background-color: White; }
     #af2 {margin-top: 20px; margin-bottom: 20px; margin-right: 100px; margin-left: 100px; background-color: White; }
     #af3 {margin-top: 20px; margin-bottom: 20px; margin-right: 100px; margin-left: 50px; background-color: White; }
@@ -166,7 +167,7 @@ print("""
     """)
 if modedEmploi:
     print("""
-        <i>Pour masquer ce mode d'emploi, cliquez sur le bouton <b>mode d'emploi</b>.</i>
+        <i>Pour masquer ce mode d'emploi, cliquez sur le bouton <mi9>mode d'emploi</mi9>.</i>
         <br/>La quasi-cryption de l'Atejcon est quasi parce qu'elle utilise un cryptage symejtrique à clef publique (pour les non-spejcialistes, c'est là qu'il convient de sourire &#128512;). Quant à la clef de cryptage, c'est un hommage direct, franc, massif et enthousiaste au S+7 oulipien de Jean Lescure. 
         <img style="float:left;margin-right:20" alt="../ressources/sp7CasUtilisation-300.png" src="../ressources/sp7CasUtilisation-300.png"/>
         <br/><br/>Voici le cas d'utilisation complet de la quasi-cryption:
@@ -180,10 +181,10 @@ if modedEmploi:
         <li>Et elle rejcupehre le menu propos originel et sans doute original.</li>
         </ol>
         <ul>
-        <li>Pour quasi-encrypter un menu propos en français, entrez-le ou soumettez-le par un habile copier-coller dans la zone ci-dessous (<mi6>il s'affiche en vert</mi6>) puis actionnez le quasi-encryptage par <i>le bouton <b>soumettre</b></i>. Le texte quasi-encrypté s'affiche à la place du menu propos (<mi5>il s'affiche en rouge</mi5>). </li>
-        <li><i>Les boutons <b>+</b>, <b>-</b>, <b>&#171;</b>, <b>&#187;</b> et <b>0</b></i> permettent de changer la clef et d'avoir un nouveau cryptage et donc un nouveau texte. Lorsque la satisfaction est là &#128578;, sauvegardez le texte quasi-encrypté par un habile copier-coller et envoyer le à son destinataire. Pour que le message puisse estre dejcrypté, il convient d'envoyer aussi la clef de dejcryptage dans son entiehreté. </li>
-        <li>Pour quasi-dejcrypter un texte reçu, il faut avoir aussi reçu la clef de dejcryptage. Soumettez le texte par un habile copier-coller dans la zone ci-dessous (<mi6>il s'affiche en vert</mi6>), faites de mesme avec la clef de dejcryptage dans la zone idoine, puis actionnez le quasi-dejcryptage par <i>le bouton <b>soumettre</b></i>. Le menu propos d'origine s'affiche à la place du texte encrypté (<mi7>il s'affiche en bleu</mi7>).</li>
-        <li>Pour revenir à l'ejcran originel de saisie, actionnez <i>le bouton <b>modifier</b></i>.</li>
+        <li>Pour quasi-encrypter un menu propos en français, entrez-le ou soumettez-le par un habile copier-coller dans la zone ci-dessous (<mi6>il s'affiche en vert</mi6>) puis actionnez le quasi-encryptage par <i>le bouton <mi9>soumettre</<mi9></i>. Le texte quasi-encrypté s'affiche à la place du menu propos (<mi5>il s'affiche en rouge</mi5>). </li>
+        <li><i>Les boutons <mi9>+</mi9>, <mi9>-</mi9>, <mi9>&#171;</mi9>, <mi9>&#187;</mi9> et <mi9>0</mi9></i> permettent de changer la clef et d'avoir un nouveau cryptage et donc un nouveau texte (<mi9>+</mi9>, <mi9>-</mi9> changent le "7", <mi9>&#171;</mi9>, <mi9>&#187;</mi9> changent le dictionnaire, <mi9>0</mi9> revient au rejglage de dejpart, mais ce n'est pas important... l'important est d'atteindre la satisfaction). Lorsque la satisfaction est là &#128578;, sauvegardez le texte quasi-encrypté par un habile copier-coller et envoyer le à son destinataire. Pour que le message puisse estre dejcrypté, il convient d'envoyer aussi la clef de dejcryptage dans son entiehreté. </li>
+        <li>Pour quasi-dejcrypter un texte reçu, il faut avoir aussi reçu la clef de dejcryptage. Soumettez le texte par un habile copier-coller dans la zone ci-dessous (<mi6>il s'affiche en vert</mi6>), faites de mesme avec la clef de dejcryptage dans la zone idoine, puis actionnez le quasi-dejcryptage par <i>le bouton <mi9>soumettre</mi9></i>. Le menu propos d'origine s'affiche à la place du texte encrypté (<mi7>il s'affiche en bleu</mi7>).</li>
+        <li>Pour revenir à l'ejcran originel de saisie, actionnez <i>le bouton <mi9>modifier</mi9></i>.</li>
         </ul>
         <i>Explications : </i>comme avec le S+7 originel, seuls les substantifs sont substituejs. Par contre, il n'y a pas de changement de genre : un substantif fejminin est remplacé par un substantif fejminin et un substantif masculin est remplacé par un substantif masculin. (c'est pour ça, pour cette limitation fonctionnelle, que c'est quasi-lescurien).
         <br/>Pour en savoir plus, vous pouvez consulter les <i><a target="_blank" href="https://latejcon.art/498X-quasiCryption-specs.pdf">spejcifications fonctionnelles de la quasi-cryption</a></i>.
