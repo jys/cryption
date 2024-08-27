@@ -138,9 +138,9 @@ print("""
     mi2, .mi2 { color:darkred; font-size: 16pt; margin: 0%%; font-weight:normal; }
     mi3, .mi3 { color:darkgreen; font-size: 16pt; margin: 0%%; font-weight:normal; }
     mi4, .mi4 { color:black; font-size: 16pt; margin: 0%%; font-weight:bold; }
-    mi5, .mi5 { color:darkred }
-    mi6, .mi6 { color:darkgreen }
-    mi7, .mi7 { color:darkblue }
+    mi5, .mi5 { color:darkred; font-weight:bold;}
+    mi6, .mi6 { color:darkgreen; font-weight:bold; }
+    mi7, .mi7 { color:darkblue; font-weight:bold; }
     mi8, .mi8 { color:darkblue; font-size: 16pt; margin: 0%%; font-weight:normal; }
     mi9, .mi9 {font-weight:bold; font-style: italic; background-color: lightgrey;}
     #af1 {margin-top: 20px; margin-bottom: 20px; margin-right: 100px; margin-left: 50px; background-color: White; }
