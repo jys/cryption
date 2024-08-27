@@ -29,7 +29,8 @@ else: ressources = '../ressources/'               # canap de Dom
 versions = (
     ('Lat2', 'mistera parentezo kun stranga latejcona nombro du'),
     ('Lat0', 'mistera parentezo kun stranga latejcona nombro nulo'),
-    ('Lat1', 'mistera parentezo kun stranga latejcona nombro unu')
+    ('Lat1', 'mistera parentezo kun stranga latejcona nombro unu'),
+    ('Lat3', 'mistera parentezo kun stranga latejcona nombro tri')
     )
 # ejtablit les ejtats et les demandes
 if environ['REQUEST_METHOD'] == 'GET':
