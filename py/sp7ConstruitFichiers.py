@@ -172,26 +172,39 @@ def construit(racine):
         # les donnejes
         identForme = qcLexique.trouveIdentifiant(grform)
         descForme = (identForme, ejquiv[genre], ejquiv[nombre])
-        if (grlem, macrocat) not in lesLemmes: lesLemmes[(grlem, macrocat)] = [0, []]
-        lesLemmes[(grlem, macrocat)][1].append(descForme)
+        if (grlem, macrocat) not in lesLemmes: lesLemmes[(grlem, macrocat)] = []
+        lesLemmes[(grlem, macrocat)].append(descForme)
         compt +=1
     print("{:6d} formes prises en compte".format(compt))
-    # numejrote les lemmes
+    # numejrote et vire les lemmes qui ont 1 seule forme, 2 genres ou 1 seul nombre
+    numejrosLemmes = {}
+    listeLemmesOk = []
+    identLemme = 1
     tousLesLemmes = list(lesLemmes.keys())
     tousLesLemmes.sort()
-    identLemme = 1
     for (grlem, macrocat) in tousLesLemmes: 
-        lesLemmes[(grlem, macrocat)][0] = identLemme
+        descFormes = list(set(lesLemmes[(grlem, macrocat)]))
+        toutesFormes = set()
+        tousGenres = set()
+        tousNombres = set()
+        for (identForme, genre, nombre) in descFormes: 
+            toutesFormes.add(identForme)
+            tousGenres.add(genre)
+            tousNombres.add(nombre)
+        if len(toutesFormes) == 1: continue
+        if len(tousGenres) == 2: continue
+        if len(tousNombres) == 1: continue
+        listeLemmesOk.append((identLemme, macrocat, descFormes))
+        numejrosLemmes[(grlem, macrocat)] = identLemme
         identLemme +=1
-    
+       
     # 6) creje le fichier des lemmes
-    sp7Lemmes = Sp7Lemmes(f'{racine}.sp7lemmes', True, len(lesLemmes))
-    for (grlem, macrocat) in tousLesLemmes:
-        (identLemme, descFormes) = lesLemmes[(grlem, macrocat)]
+    sp7Lemmes = Sp7Lemmes(f'{racine}.sp7lemmes', True, len(listeLemmesOk))
+    for (identLemme, macrocat, descFormes) in listeLemmesOk:
         sp7Lemmes.ajouteLemme(identLemme, macrocat, list(set(descFormes)))
     sp7Lemmes.ejcritIdentificationFichier(maxIdentifiant, identifieurUnique)
     sp7Lemmes.close()
-    print("{:6d} lemmes pris en compte".format(len(lesLemmes)))
+    print("{:6d} lemmes pris en compte".format(len(listeLemmesOk)))
     
     # 7) ejtablit la structure des formes
     print(' '*7 + f'Création du {racine}.sp7formes') 
@@ -240,7 +253,7 @@ def construit(racine):
         else: modetemps = 0
         identForme = qcLexique.trouveIdentifiant(grform)
         # trouve l'identifiant de lemme
-        if (grlem, macrocat) in lesLemmes: identLemme = lesLemmes[(grlem, macrocat)][0]
+        if (grlem, macrocat) in numejrosLemmes: identLemme = numejrosLemmes[(grlem, macrocat)]
         else: identLemme = 0
         descForme = (identLemme, macrocat, ejquiv[genre], ejquiv[nombre], ejquiv[personne], modetemps, divers)
         if identForme not in lesFormes: lesFormes[identForme] = []
