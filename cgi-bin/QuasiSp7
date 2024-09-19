@@ -26,11 +26,14 @@ form = cgi.FieldStorage()
 if path.abspath(path.curdir).endswith('jys/Boa/Splus7'): ressources = 'ressources/'     #local
 else: ressources = '../ressources/'               # canap de Dom
 # les versions de ressources
+# 0:nula, 1:unu, 2:du, 3:tri, 4:kvar, 5:kvin, 6:ses, 7:sep, 8:ok, 9:naŭ, 10:dek
+versionsCourantes = 3
 versions = (
-    ('Lat2', 'mistera parentezo kun stranga latejcona nombro du'),
-    ('Lat0', 'mistera parentezo kun stranga latejcona nombro nulo'),
+    ('Lat4', 'mistera parentezo kun stranga latejcona nombro kvar'),
     ('Lat1', 'mistera parentezo kun stranga latejcona nombro unu'),
-    ('Lat3', 'mistera parentezo kun stranga latejcona nombro tri')
+    ('Lat3', 'mistera parentezo kun stranga latejcona nombro tri'),
+    ('Lat0', 'mistera parentezo kun stranga latejcona nombro nula'),
+    ('Lat2', 'mistera parentezo kun stranga latejcona nombro du')
     )
 # ejtablit les ejtats et les demandes
 if environ['REQUEST_METHOD'] == 'GET':
@@ -82,8 +85,8 @@ if zejro:
     clefNum = 7
     versionNum = 0
 clef = str(clefNum)
-if autrePlus: versionNum = (versionNum +1) % len(versions)
-if autreMoins: versionNum = (versionNum -1) % len(versions)
+if autrePlus: versionNum = (versionNum +1) % versionsCourantes
+if autreMoins: versionNum = (versionNum -1) % versionsCourantes
 version = str(versionNum)
 
 if soumettre or plus or moins or zejro or autrePlus or autreMoins: 
@@ -91,12 +94,12 @@ if soumettre or plus or moins or zejro or autrePlus or autreMoins:
         racineFichiers = versions[versionNum][0]
         sp7Cryption = Sp7Cryption(ressources + racineFichiers)
         ClefCryptage = f'««« clef pour dejcrypter par https://latejcon.art/splus7 ({versions[versionNum][1]} {clefNum + 2236}) »»»'
-        texteCryptej = sp7Cryption.cryptage(menuPropos, clefNum)
+        texteCryptej = sp7Cryption.cryptage2(menuPropos, clefNum)
         sp7Cryption.close()
     else:
         if racineFichiers != '':
             sp7Cryption = Sp7Cryption(ressources + racineFichiers)
-            texteCryptej = sp7Cryption.cryptage(menuPropos, clefNum)
+            texteCryptej = sp7Cryption.cryptage2(menuPropos, clefNum)
             sp7Cryption.close()
             texteDejcryptage = 'Et voici le menu propos originel :'
         else: 
@@ -128,9 +131,10 @@ print("""
     <style type="text/css">
     .ta1 { width:100%; height:400px; overflow:auto; font-size: 16pt; color:darkgreen; font-family: Tahoma, sans-serif; background-color: White; } 
     .ta11 { width:100%; overflow:auto; font-size: 14pt; color:darkgreen; font-family: Tahoma, sans-serif; background-color: White; } 
-    .ta2 { width:100%; overflow:auto; font-size: 16pt; color:darkred; font-family: Tahoma, sans-serif; background-color: lightgrey; margin-bottom: 0px;} 
+    .ta2 { width:100%; overflow:auto; font-size: 16pt; color:darkred; font-family: Tahoma, sans-serif; background-color: lightgrey; margin-top: 0px; margin-bottom: 0px;} 
     .ta21 { width:100%; overflow:auto; font-size: 14pt; color:darkred; font-family: Tahoma, sans-serif; background-color: lightgrey;}
-    .ta22 { width:100%; overflow:auto; background-color: lightgrey; margin-top: 0px;}
+    .ta22 { width:100%; overflow:auto; background-color: lightgrey; margin-top: 0px; margin-bottom: 0px;}
+    .ta23 { width:100%; overflow:auto; background-color: white; text-align:right; margin-top: 0px; margin-bottom: 0px;}
     .ta3 { width:100%; overflow:auto; font-size: 16pt; color:darkblue; font-family: Tahoma, sans-serif; background-color: lightgrey;  margin-bottom: 0px;} 
     a:link { text-decoration:none; } 
     sti { color:black;  font-size: 35pt; margin: 0%%; font-weight:normal; font-style: italic;}
@@ -194,26 +198,29 @@ print('</div>')
 
 if ejtat == 'enSaisie':
     print('<div id="af1">')
-    print('<p class="mi2"> Entrez ou copiez ci-dessous le menu propos à quasi-encrypter ou le message à quasi-dejcrypter<br/></p>')
+    print('<p class="mi2" style="margin-bottom: 0px"> Entrez ou copiez ci-dessous le menu propos à quasi-encrypter ou le message à quasi-dejcrypter<br/></p>')
+    print('<p class="ta23"><input type="submit" name="soumettre" value="soumettre" style="font-size: 16pt"/> le menu propos</p>')
     print(f'<textarea class="ta1" name="texteSaisi">{menuPropos}</textarea><br/>')
     print('<p class="mi2"> En cas de quasi-dejcryptage, entrez la clef idoine <br/></p>')
     print(f'<textarea class="ta11" name="clefSaisie" rows="2">{clefSaisie}</textarea><br/>')
-    print('<input type="submit" name="soumettre" value="soumettre" style="font-size: 16pt"/>')
+    print('<input type="submit" name="soumettre" value="soumettre" style="font-size: 16pt"/> le menu propos')
     print('</div>')
 elif ejtat == 'enCryptage':
     print('<div id="af1">')
-    print('<p class="mi3">Et voici ce que ça donne :<br/></p>')
-    print(f'<p class="ta2" name="texteCalculej"><br/>{texteCryptej}<br/><br/></p>')
+    print('<p class="mi3" style="margin-bottom: 0px">Et voici ce que ça donne :<br/></p>')
+    print('<p class="ta23"><input type="submit" name="modifier" value="modifier" style="font-size: 16pt"/> le menu propos</p>')
     print('<p class="ta22">ajustez la clef de quasi-cryptage, le <input type="submit" name="moins" value="&nbsp;&nbsp;-&nbsp;&nbsp;" style="font-size: 16pt; font-weight: bold"/>')
     print(' sept ')
     print('<input type="submit" name="plus" value="&nbsp;&nbsp;+&nbsp;&nbsp;" style="font-size: 16pt; font-weight: bold"/> ou le')
     print('<input type="submit" name="autrePlus" value="&nbsp;&nbsp;&#171;&nbsp;&nbsp;" style="font-size: 16pt; font-weight: bold"/>')
     print(' dictionnaire ')
     print('<input type="submit" name="autreMoins" value="&nbsp;&nbsp;&#187;&nbsp;&nbsp;" style="font-size: 16pt; font-weight: bold"/> ou remettez à ')
-    print('<input type="submit" name="zejro" value="&nbsp;&nbsp;0&nbsp;&nbsp;" style="font-size: 16pt; font-weight: bold"/></p>')
-    print('<p class="mi3">Avec la clef de dejcryptage (à transmettre telle quelle) :<br/></p>')
+    print('<input type="submit" name="zejro" value="&nbsp;&nbsp;0&nbsp;&nbsp;" style="font-size: 16pt; font-weight: bold"/>')
+    print('</p>')
+    print(f'<p class="ta2" name="texteCalculej"><br/>{texteCryptej}<br/><br/></p>')
+    print('<p class="ta23"><input type="submit" name="modifier" value="modifier" style="font-size: 16pt"/> le menu propos</p>')
+    print('<p class="mi3" style="margin-top: 0px">Avec la clef de dejcryptage (à transmettre telle quelle) :<br/></p>')
     print(f'<p class="ta21" name="clefCalculej"><br/>{ClefCryptage}<br/><br/></p><br/>')    
-    print('<input type="submit" name="modifier" value="modifier" style="font-size: 16pt"/> le menu propos&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;')
     print('</div>')
 else:
     print('<div id="af1">')

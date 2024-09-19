@@ -20,6 +20,7 @@ from Sp7Lemmes import Sp7Lemmes
 #from QcRejtroFormes import QcRejtroFormes
 #from QcRejtroFormes import CAT_ADV, CAT_SUBM, CAT_SUBF, CAT_VER, CAT_PPR, CAT_PPA
 import numpy
+import locale
 
 def usage():
     script = '$PY/' + path.basename(sys.argv[0])
@@ -95,6 +96,7 @@ L_VERBE_COPULE_IMPERATIF = 1577
 TAILLE_HASH = 100019
     
 def construit(racine):
+    locale.setlocale(locale.LC_COLLATE, 'fr_FR.UTF-8')
     # 1) si la sauvegarde numpy n'est pas lah, la creje
     nomNumpy = 'Sp7.npy'
     if not path.isfile(nomNumpy):
@@ -168,7 +170,7 @@ def construit(racine):
         if macrocat not in (L_NC,): continue
         if genre not in (L_MASC, L_FEM): continue
         if nombre not in (L_SING, L_PLUR): continue
-        if avecFiltage and macrocat == L_NC and grlem not in filtreGraphies : continue
+        if avecFiltage and grlem not in filtreGraphies : continue
         # les donnejes
         identForme = qcLexique.trouveIdentifiant(grform)
         descForme = (identForme, ejquiv[genre], ejquiv[nombre])
@@ -181,7 +183,8 @@ def construit(racine):
     listeLemmesOk = []
     identLemme = 1
     tousLesLemmes = list(lesLemmes.keys())
-    tousLesLemmes.sort()
+    #tousLesLemmes.sort()
+    tousLesLemmes = sorted(tousLesLemmes, key=lambda x: locale.strxfrm(x[0]))
     for (grlem, macrocat) in tousLesLemmes: 
         descFormes = list(set(lesLemmes[(grlem, macrocat)]))
         toutesFormes = set()
@@ -191,9 +194,9 @@ def construit(racine):
             toutesFormes.add(identForme)
             tousGenres.add(genre)
             tousNombres.add(nombre)
-        if len(toutesFormes) == 1: continue
-        if len(tousGenres) == 2: continue
-        if len(tousNombres) == 1: continue
+        if len(toutesFormes) == 1: continue     # une seule graphie pour toutes les formes
+        if len(tousGenres) == 2: continue       # du masculin et du fejminin
+        if len(tousNombres) == 1: continue      # que du pluriel ou que du singulier
         listeLemmesOk.append((identLemme, macrocat, descFormes))
         numejrosLemmes[(grlem, macrocat)] = identLemme
         identLemme +=1
@@ -223,32 +226,30 @@ def construit(racine):
         # les donnejes
         divers = 0
         if grlem == "être": divers = COPULE
-        if macro_micro in (L_VERBE_COPULE_INDICATIF, L_VERBE_COPULE_SUBJONCTIF, L_VERBE_COPULE_IMPERATIF,
-                           L_VERBE_COPULE_INFINITIF, L_VERBE_COPULE_PARTICIPE_PRESENT, L_VERBE_COPULE_PARTICIPE_PASSE): 
+        if macro_micro in (
+            L_VERBE_COPULE_INDICATIF, L_VERBE_COPULE_SUBJONCTIF, L_VERBE_COPULE_IMPERATIF, L_VERBE_COPULE_INFINITIF, L_VERBE_COPULE_PARTICIPE_PRESENT, L_VERBE_COPULE_PARTICIPE_PASSE): 
             divers = COPULE
-        if macro_micro in (L_VERBE_PRINCIPAL_INFINITIF, L_VERBE_AUXILIAIRE_INFINITIF,
-                           L_VERBE_MODALITE_INFINITIF, L_VERBE_COPULE_INFINITIF): 
+        if macro_micro in (
+            L_VERBE_PRINCIPAL_INFINITIF, L_VERBE_AUXILIAIRE_INFINITIF, L_VERBE_MODALITE_INFINITIF, L_VERBE_COPULE_INFINITIF): 
             modetemps = INFINITIF
-        elif macro_micro in (L_VERBE_PRINCIPAL_PARTICIPE_PRESENT, L_VERBE_AUXILIAIRE_PARTICIPE_PRESENT,
-                           L_VERBE_MODALITE_PARTICIPE_PRESENT, L_VERBE_COPULE_PARTICIPE_PRESENT): 
+        elif macro_micro in (
+            L_VERBE_PRINCIPAL_PARTICIPE_PRESENT, L_VERBE_AUXILIAIRE_PARTICIPE_PRESENT, L_VERBE_MODALITE_PARTICIPE_PRESENT, L_VERBE_COPULE_PARTICIPE_PRESENT): 
             modetemps = PART_PREJSENT
-        elif macro_micro in (L_VERBE_PRINCIPAL_PARTICIPE_PASSE, L_VERBE_AUXILIAIRE_PARTICIPE_PASSE,
-                           L_VERBE_MODALITE_PARTICIPE_PASSE, L_VERBE_COPULE_PARTICIPE_PASSE): 
+        elif macro_micro in (
+            L_VERBE_PRINCIPAL_PARTICIPE_PASSE, L_VERBE_AUXILIAIRE_PARTICIPE_PASSE, L_VERBE_MODALITE_PARTICIPE_PASSE, L_VERBE_COPULE_PARTICIPE_PASSE): 
             modetemps = PART_PASSEJ
-        #elif macro_micro in (L_VERBE_PRINCIPAL_INDICATIF, L_VERBE_AUXILIAIRE_INDICATIF,
-                           #L_VERBE_MODALITE_INDICATIF, L_VERBE_COPULE_INDICATIF): 
-            #modetemps = {L_PRES : IND_PREJSENT, L_IMPFT : IND_IMPARFAIT, L_PASS : IND_PASSEJ, 
-                         #L_FUTUR : IND_FUTUR, L_COND_PRES : CONDITIONNEL}[temps]
-        #elif macro_micro in (L_VERBE_PRINCIPAL_SUBJONCTIF, L_VERBE_AUXILIAIRE_SUBJONCTIF,
-                           #L_VERBE_MODALITE_SUBJONCTIF, L_VERBE_COPULE_SUBJONCTIF): 
+        #elif macro_micro in (
+            #L_VERBE_PRINCIPAL_INDICATIF, L_VERBE_AUXILIAIRE_INDICATIF, L_VERBE_MODALITE_INDICATIF, L_VERBE_COPULE_INDICATIF): 
+            #modetemps = {
+                #L_PRES : IND_PREJSENT, L_IMPFT : IND_IMPARFAIT, L_PASS : IND_PASSEJ, L_FUTUR : IND_FUTUR, L_COND_PRES : CONDITIONNEL}[temps]
+        #elif macro_micro in (
+            #L_VERBE_PRINCIPAL_SUBJONCTIF, L_VERBE_AUXILIAIRE_SUBJONCTIF, L_VERBE_MODALITE_SUBJONCTIF, L_VERBE_COPULE_SUBJONCTIF): 
             #modetemps = {L_PRES : SUB_PREJSENT, L_IMPFT : SUB_IMPARFAIT}[temps]
-        elif macro_micro in (L_VERBE_PRINCIPAL_IMPERATIF, L_VERBE_AUXILIAIRE_IMPERATIF,
-                           L_VERBE_MODALITE_IMPERATIF, L_VERBE_COPULE_IMPERATIF): 
+        elif macro_micro in (
+            L_VERBE_PRINCIPAL_IMPERATIF, L_VERBE_AUXILIAIRE_IMPERATIF, L_VERBE_MODALITE_IMPERATIF, L_VERBE_COPULE_IMPERATIF): 
             modetemps = IMPEJRATIF
-        elif macro_micro in (L_VERBE_PRINCIPAL_INDICATIF, L_VERBE_AUXILIAIRE_INDICATIF,
-                           L_VERBE_MODALITE_INDICATIF, L_VERBE_COPULE_INDICATIF,
-                           L_VERBE_PRINCIPAL_SUBJONCTIF, L_VERBE_AUXILIAIRE_SUBJONCTIF,
-                           L_VERBE_MODALITE_SUBJONCTIF, L_VERBE_COPULE_SUBJONCTIF): 
+        elif macro_micro in (
+            L_VERBE_PRINCIPAL_INDICATIF, L_VERBE_AUXILIAIRE_INDICATIF, L_VERBE_MODALITE_INDICATIF, L_VERBE_COPULE_INDICATIF, L_VERBE_PRINCIPAL_SUBJONCTIF, L_VERBE_AUXILIAIRE_SUBJONCTIF, L_VERBE_MODALITE_SUBJONCTIF, L_VERBE_COPULE_SUBJONCTIF): 
             modetemps = CONJUGUEJ
         else: modetemps = 0
         identForme = qcLexique.trouveIdentifiant(grform)

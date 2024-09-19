@@ -15,9 +15,10 @@ def usage():
 Analyse le fichier plat des formes du système Sp7.
 Donne la lemmatisation et les propriétés grammaticales d'une forme
 
-usage   : {script} <fichier Sp7> [ "analyse" | "lemmatisation" <forme> ]
+usage   : {script} <fichier Sp7> [ "analyse" | "lemmatisation" <forme> | étiquette]
 exemple : {script} Latejcon.sp7formes
 exemple : {script} Latejcon.sp7formes lem 10636
+exemple : {script} Latejcon.sp7formes éti
 """)
     
 def main():
@@ -46,6 +47,8 @@ def analyse(nomFichierQc, action, identifiantForme):
         donnejes = sp7Formes.trouveDonnejes(identifiantForme)
         for (identifiantLemme, macro, genre, nombre, personne, temps, divers) in donnejes:
             print(f'{identifiantLemme}, {macro}, {genre}, {nombre}, {personne}, {temps}, {divers}')
+    elif action.startswith('éti'):
+        sp7Formes.afficheEjtiquettes()
     sp7Formes.close()
     
 ######################################################################################
@@ -192,6 +195,29 @@ class Sp7Formes(QcIndex):
         print ("=============")
         print("NOMBRE DE VIDES            : ", len(vides))
         
+    ################################
+    # affiche toutes les ejtiquettes des formes
+    def afficheEjtiquettes(self):
+        txtMacro = {
+            L_ADJ : "ADJ", L_ADV : "ADV", L_CONJ : "CONJ", L_DET : "DET", L_NC : "NC", L_NP : "NP", L_PREP : "PREP", L_PRON : "PRON", L_V : "V"}
+        txt = {
+            0 : "-", MASCULIN : "m", FEJMININ : "f", SINGULIER : "s", PLURIEL : "p", PERS_1 : "1", PERS_2: "2", PERS_3 : "3", COPULE : "c", INFINITIF : "IN", PART_PASSEJ : "PP", PART_PREJSENT : "PR", IMPEJRATIF : "IM", CONJUGUEJ : "CJ"}
+        ejtiquettes = {}
+        nbEjtiq = 0
+        for identifiantForme in range(1, self.nombreEntrejes):
+            propriejtejs = self.trouveDonnejes(identifiantForme)
+            for (identifiantLemme, macro, genre, nombre, personne, temps, divers) in propriejtejs:
+                ejtiquette = txtMacro[macro] + txt[genre] + txt[nombre] + txt[personne] + txt[temps] + txt[divers]
+                if ejtiquette not in ejtiquettes: ejtiquettes[ejtiquette] = 0
+                ejtiquettes[ejtiquette] +=1
+                nbEjtiq +=1
+        print('NOMBRE DE FORMES           : ', self.nombreEntrejes -1)
+        print("NOMBRE D'ÉTIQUETTES        : ", nbEjtiq)
+        listeEjtiquettes = list(ejtiquettes.items())
+        listeEjtiquettes.sort()
+        for(ejtiquette, nombre) in listeEjtiquettes:
+            print(f'{ejtiquette} : {nombre}')
+
             
 if __name__ == '__main__':
     main()

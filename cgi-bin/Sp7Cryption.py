@@ -97,7 +97,16 @@ class Sp7Cryption:
         self.sp7Lemmes.close()
         
     ################################
+    def cryptage2(self, phrase, dejcalage):
+        phraseSubs = self.cryptage(phrase, dejcalage)
+        # remplace les \n par <br/>
+        phraseSubs = phraseSubs.replace('\n', '<br/>')
+        return phraseSubs
+        
+    ################################
     def cryptage(self, phrase, dejcalage):
+        # remplace les apostrophes bizarres
+        phrase = phrase.replace('’', "'").replace('‘', "'")
         # si pas de dejcalage, raf
         if dejcalage == 0: return phrase
         # on garde la phrase originale
@@ -128,6 +137,8 @@ class Sp7Cryption:
             macrolemmes = set()
             for (identifiantLemme, macro, genre, nombre, personne, temps, divers) in propriejtejs:
                 ejtiquette = txtMacro[macro] + txt[genre] + txt[nombre]
+                # pour les verbes, on ajoute le temps
+                if temps != 0: ejtiquette += txt[temps]
                 phraseEjtiqueteje[-1][3][ejtiquette] = identifiantLemme
             ejtiquettes = list(phraseEjtiqueteje[-1][3].keys())
             phraseEjtiqueteje[-1][2] = ejtiquettes
@@ -135,7 +146,8 @@ class Sp7Cryption:
         # 2) invalide les NCxx interdits et les NCxx commencant par une majuscule
         for idxMot in range(len(phraseEjtiqueteje)):
             (mot, index, ejtiquettes, ejtiqlemmes, choix) = phraseEjtiqueteje[idxMot]
-            if mot[0].islower() and mot not in sp7Modehles.sp7NcInterdits: continue
+            #if mot[0].islower() and mot not in sp7Modehles.sp7NcInterdits: continue
+            if mot not in sp7Modehles.sp7NcInterdits: continue
             nouvelleEjtiquettes = []
             for ejtiquette in ejtiquettes: 
                 if not ejtiquette.startswith('NC'): nouvelleEjtiquettes.append(ejtiquette)
@@ -184,11 +196,14 @@ class Sp7Cryption:
         substantifs = []
         for (modehle, idx1erMot) in modehlesOk:
             numsGenre = []
+            avecNC = False
             for idxMod in range(len(modehle)):
                 phraseEjtiqueteje[idx1erMot + idxMod][4] = modehle[idxMod]
-                if modehle[idxMod][:2] == 'NC': numSubs = idx1erMot + idxMod
+                if modehle[idxMod][:2] == 'NC': 
+                    numSubs = idx1erMot + idxMod
+                    avecNC = True
                 if modehle[idxMod][-2:-1] in ('f', 'm'): numsGenre.append(idx1erMot + idxMod)
-            substantifs.append((numSubs, numsGenre))
+            if avecNC: substantifs.append((numSubs, numsGenre))
         #####
         # 6) substitution des NC
         phraseSubs = phrase

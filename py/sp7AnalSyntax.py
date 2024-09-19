@@ -101,6 +101,8 @@ def analyseParagraphe(racine, texteOuFichier, trace):
     phrases = re.split("\.|;", texte)
     # on traite § par §
     for phrase in phrases:
+        # remplace les apostrophes bizarres
+        phrase = phrase.replace('’', "'").replace('‘', "'")
         # on garde la phrase originale
         phrase2 = phrase.strip()
         if phrase2 == '': continue
@@ -132,6 +134,8 @@ def analyseParagraphe(racine, texteOuFichier, trace):
             #print('propriejtejs=', propriejtejs)
             for (identifiantLemme, macro, genre, nombre, personne, temps, divers) in propriejtejs:
                 ejtiquette = txtMacro[macro] + txt[genre] + txt[nombre]
+                # pour les verbes, on ajoute le temps
+                if temps != 0: ejtiquette += txt[temps]
                 phraseEjtiqueteje[-1][3][ejtiquette] = identifiantLemme
             ejtiquettes = list(phraseEjtiqueteje[-1][3].keys())
             phraseEjtiqueteje[-1][2] = ejtiquettes
@@ -139,7 +143,8 @@ def analyseParagraphe(racine, texteOuFichier, trace):
         # invalide les NCxx interdits et les NCxx commencant par une majuscule
         for idxMot in range(len(phraseEjtiqueteje)):
             (mot, index, ejtiquettes, ejtiqlemmes, choix) = phraseEjtiqueteje[idxMot]
-            if mot[0].islower() and mot not in sp7Modehles.sp7NcInterdits: continue
+            #if mot[0].islower() and mot not in sp7Modehles.sp7NcInterdits: continue
+            if mot not in sp7Modehles.sp7NcInterdits: continue
             nouvelleEjtiquettes = []
             for ejtiquette in ejtiquettes: 
                 if not ejtiquette.startswith('NC'): nouvelleEjtiquettes.append(ejtiquette)
@@ -207,11 +212,14 @@ def analyseParagraphe(racine, texteOuFichier, trace):
         substantifs = []
         for (modehle, idx1erMot) in modehlesOk:
             numsGenre = []
+            avecNC = False
             for idxMod in range(len(modehle)):
                 phraseEjtiqueteje[idx1erMot + idxMod][4] = modehle[idxMod]
-                if modehle[idxMod][:2] == 'NC': numSubs = idx1erMot + idxMod
+                if modehle[idxMod][:2] == 'NC': 
+                    numSubs = idx1erMot + idxMod
+                    avecNC = True
                 if modehle[idxMod][-2:-1] in ('f', 'm'): numsGenre.append(idx1erMot + idxMod)
-            substantifs.append((numSubs, numsGenre))
+            if avecNC: substantifs.append((numSubs, numsGenre))
         if trace in ('ABC'): print('\nsubstantifs=', substantifs)
         if trace in ('ABC'): print('\nphraseEjtiqueteje=', phraseEjtiqueteje)
         
@@ -243,6 +251,7 @@ def analyseParagraphe(racine, texteOuFichier, trace):
             masculin = ejtiquette[-2] == 'm'
             # trouve le lemme du NC substituej
             idLemmeNC = phraseEjtiqueteje[numSubs][3][ejtiquette]
+            #print('idLemmeNC=', idLemmeNC)
             # si le lemme est inconnu, on ne fait rien
             if idLemmeNC == 0: continue
             # trouve le NC substituant
