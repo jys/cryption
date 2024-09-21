@@ -14,6 +14,7 @@ sp7Modehles = (
     'CONJ-- NCms', 'CONJ-- NCfs', 'CONJ-- NCfp', 'CONJ-- NCmp',
     # le cheval, une jument, mes juments, quatorze chevaux
     'DETms NCms', 'DETfs NCfs', 'DETfp NCfp', 'DETmp NCmp',
+    'DETms ADV-- NCms', 'DETfs ADV-- NCfs', 'DETfp ADV-- NCfp', 'DETmp ADV-- NCmp',
     # cher mari, chère femme, chers voisins, belles voisines
     'ADJms NCms', 'ADJfs NCfs', 'ADJmp NCmp', 'ADJfp NCfp', 
     # si son travail, et sa conduite, ou vingt familles, donc des gendarmes
@@ -24,11 +25,15 @@ sp7Modehles = (
     'PREP-- ADJms NCms', 'PREP-- ADJfs NCfs', 'PREP-- ADJfp NCfp', 'PREP-- ADJmp NCmp',
     # avec le chien, sans la chienne, comme des bêtes, pour dix écus
     'PREP-- DETms NCms', 'PREP-- DETfs NCfs', 'PREP-- DETfp NCfp', 'PREP-- DETmp NCmp',
+    'PREP-- DETms ADV-- NCms', 'PREP-- DETfs ADV-- NCfs', 
+    'PREP-- DETfp ADV-- NCfp', 'PREP-- DETmp ADV-- NCmp',
     # contenant le portrait, ...
-    'V-- DETms NCms', 'V-- DETfs NCfs', 'V-- DETfp NCfp', 'V-- DETmp NCmp',
+    'V--PR DETms NCms', 'V--PR DETfs NCfs', 'V--PR DETfp NCfp', 'V--PR DETmp NCmp',
     # et contenant le portrait, ...
-    'CONJ-- V-- DETms NCms', 'CONJ-- V-- DETfs NCfs', 
-    'CONJ-- V-- DETfp NCfp', 'CONJ-- V-- DETmp NCmp',
+    'CONJ-- V--PR DETms NCms', 'CONJ-- V--PR DETfs NCfs', 
+    'CONJ-- V--PR DETfp NCfp', 'CONJ-- V--PR DETmp NCmp',
+    'CONJ-- V--PR DETms ADV-- NCms', 'CONJ-- V--PR DETfs ADV-- NCfs', 
+    'CONJ-- V--PR DETfp ADV-- NCfp', 'CONJ-- V--PR DETmp ADV-- NCmp',
     # et garçon poli, mais fille polie, donc femmes puissantes, ni hommes vieux
     'CONJ-- NCms ADJms', 'CONJ-- NCfs ADJfs', 'CONJ-- NCfp ADJfp', 'CONJ-- NCmp ADJmp',
     'CONJ-- NCms ADV-- ADJms', 'CONJ-- NCfs ADV-- ADJfs', 
@@ -46,15 +51,15 @@ sp7Modehles = (
     'DETms ADV-- ADJms NCms', 'DETfs ADV-- ADJfs NCfs', 
     'DETfp ADV-- ADJfp NCfp', 'DETmp ADV-- ADJmp NCmp',
     # contenant le flacon vide, ...
-    'V-- DETms NCms ADJms', 'V-- DETfs NCfs ADJfs', 
-    'V-- DETfp NCfp ADJfp', 'V-- DETmp NCmp ADJmp',
-    'V-- DETms NCms ADV-- ADJms', 'V-- DETfs NCfs ADV-- ADJfs', 
-    'V-- DETfp NCfp ADV-- ADJfp', 'V-- DETmp NCmp ADV-- ADJmp',
+    'V--PR DETms NCms ADJms', 'V--PR DETfs NCfs ADJfs', 
+    'V--PR DETfp NCfp ADJfp', 'V--PR DETmp NCmp ADJmp',
+    'V--PR DETms NCms ADV-- ADJms', 'V--PR DETfs NCfs ADV-- ADJfs', 
+    'V--PR DETfp NCfp ADV-- ADJfp', 'V--PR DETmp NCmp ADV-- ADJmp',
     # contenant le joli flacon, ...
-    'V-- DETms ADJms NCms', 'V-- DETfs ADJfs NCfs', 
-    'V-- DETfp ADJfp NCfp', 'V-- DETmp ADJmp NCmp',
-    'V-- DETms ADV-- ADJms NCms', 'V-- DETfs ADV-- ADJfs NCfs', 
-    'V-- DETfp ADV-- ADJfp NCfp', 'V-- DETmp ADV-- ADJmp NCmp',
+    'V--PR DETms ADJms NCms', 'V--PR DETfs ADJfs NCfs', 
+    'V--PR DETfp ADJfp NCfp', 'V--PR DETmp ADJmp NCmp',
+    'V--PR DETms ADV-- ADJms NCms', 'V--PR DETfs ADV-- ADJfs NCfs', 
+    'V--PR DETfp ADV-- ADJfp NCfp', 'V--PR DETmp ADV-- ADJmp NCmp',
     # le joli garçon naïf, une jolie fille pubère, dix vieilles femmes aigries, des pauvres hommes esseulés
     'DETms ADJms NCms ADJms', 'DETfs ADJfs NCfs ADJfs', 
     'DETfp ADJfp NCfp ADJfp', 'DETmp ADJmp NCmp ADJmp',
@@ -65,19 +70,19 @@ sp7Modehles = (
     'DETms ADV-- ADJms NCms ADV-- ADJms', 'DETfs ADV-- ADJfs NCfs ADV-- ADJfs', 
     'DETfp ADV-- ADJfp NCfp ADV-- ADJfp', 'DETmp ADV-- ADJmp NCmp ADV-- ADJmp',
     # contenant le joli flacon vide, ...
-    'V-- DETms ADJms NCms ADJms', 'V-- DETfs ADJfs NCfs ADJfs', 
-    'V-- DETfp ADJfp NCfp ADJfp', 'V-- DETmp ADJmp NCmp ADJmp',
-    'V-- DETms ADV-- ADJms NCms ADJms', 'V-- DETfs ADV-- ADJfs NCfs ADJfs', 
-    'V-- DETfp ADV-- ADJfp NCfp ADJfp', 'V-- DETmp ADV-- ADJmp NCmp ADJmp',
-    'V-- DETms ADJms NCms ADV-- ADJms', 'V-- DETfs ADJfs NCfs ADV-- ADJfs', 
-    'V-- DETfp ADJfp NCfp ADV-- ADJfp', 'V-- DETmp ADJmp NCmp ADV-- ADJmp',
-    'V-- DETms ADV-- ADJms NCms ADV-- ADJms', 'V-- DETfs ADV-- ADJfs NCfs ADV-- ADJfs', 
-    'V-- DETfp ADV-- ADJfp NCfp ADV-- ADJfp', 'V-- DETmp ADV-- ADJmp NCmp ADV-- ADJmp',
+    'V--PR DETms ADJms NCms ADJms', 'V--PR DETfs ADJfs NCfs ADJfs', 
+    'V--PR DETfp ADJfp NCfp ADJfp', 'V--PR DETmp ADJmp NCmp ADJmp',
+    'V--PR DETms ADV-- ADJms NCms ADJms', 'V--PR DETfs ADV-- ADJfs NCfs ADJfs', 
+    'V--PR DETfp ADV-- ADJfp NCfp ADJfp', 'V--PR DETmp ADV-- ADJmp NCmp ADJmp',
+    'V--PR DETms ADJms NCms ADV-- ADJms', 'V--PR DETfs ADJfs NCfs ADV-- ADJfs', 
+    'V--PR DETfp ADJfp NCfp ADV-- ADJfp', 'V--PR DETmp ADJmp NCmp ADV-- ADJmp',
+    'V--PR DETms ADV-- ADJms NCms ADV-- ADJms', 'V--PR DETfs ADV-- ADJfs NCfs ADV-- ADJfs', 
+    'V--PR DETfp ADV-- ADJfp NCfp ADV-- ADJfp', 'V--PR DETmp ADV-- ADJmp NCmp ADV-- ADJmp',
     # tout le jour, toute une semaine, toutes les semaines, tous les jours
     'DETms DETms NCms', 'DETfs DETfs NCfs', 'DETfp DETfp NCfp', 'DETmp DETmp NCmp',
     # contenant tout le jour, ...
-    'V-- DETms DETms NCms', 'V-- DETfs DETfs NCfs', 
-    'V-- DETfp DETfp NCfp', 'V-- DETmp DETmp NCmp',
+    'V--PR DETms DETms NCms', 'V--PR DETfs DETfs NCfs', 
+    'V--PR DETfp DETfp NCfp', 'V--PR DETmp DETmp NCmp',
     # jeune et joli garçon, jeune et jolie fille, jeunes et jolies femmes, jeunes et jolis garçons
     'ADJms CONJ-- ADJms NCms', 'ADJfs CONJ-- ADJfs NCfs', 
     'ADJfp CONJ-- ADJfp NCfp', 'ADJmp CONJ-- ADJmp NCmp',
@@ -122,14 +127,16 @@ sp7Modehles = (
     'DETms NCms ADV-- ADJms CONJ-- ADV-- ADJms', 'DETfs NCfs ADV-- ADJfs CONJ-- ADV-- ADJfs',
     'DETfp NCfp ADV-- ADJfp CONJ-- ADV-- ADJfp', 'DETmp NCmp ADV-- ADJmp CONJ-- ADV-- ADJmp',
     # contenant le flacon rouge et bleu, ...
-    'V-- DETms NCms ADJms CONJ-- ADJms', 'V-- DETfs NCfs ADJfs CONJ-- ADJfs',
-    'V-- DETfp NCfp ADJfp CONJ-- ADJfp', 'V-- DETmp NCmp ADJmp CONJ-- ADJmp',
-    'V-- DETms NCms ADV-- ADJms CONJ-- ADJms', 'V-- DETfs NCfs ADV-- ADJfs CONJ-- ADJfs',
-    'V-- DETfp NCfp ADV-- ADJfp CONJ-- ADJfp', 'V-- DETmp NCmp ADV-- ADJmp CONJ-- ADJmp',
-    'V-- DETms NCms ADJms CONJ-- ADV-- ADJms', 'V-- DETfs NCfs ADJfs CONJ-- ADV-- ADJfs',
-    'V-- DETfp NCfp ADJfp CONJ-- ADV-- ADJfp', 'V-- DETmp NCmp ADJmp CONJ-- ADV-- ADJmp',
-    'V-- DETms NCms ADV-- ADJms CONJ-- ADV-- ADJms', 'V-- DETfs NCfs ADV-- ADJfs CONJ-- ADV-- ADJfs',
-    'V-- DETfp NCfp ADV-- ADJfp CONJ-- ADV-- ADJfp', 'V-- DETmp NCmp ADV-- ADJmp CONJ-- ADV-- ADJmp',
+    'V--PR DETms NCms ADJms CONJ-- ADJms', 'V--PR DETfs NCfs ADJfs CONJ-- ADJfs',
+    'V--PR DETfp NCfp ADJfp CONJ-- ADJfp', 'V--PR DETmp NCmp ADJmp CONJ-- ADJmp',
+    'V--PR DETms NCms ADV-- ADJms CONJ-- ADJms', 'V--PR DETfs NCfs ADV-- ADJfs CONJ-- ADJfs',
+    'V--PR DETfp NCfp ADV-- ADJfp CONJ-- ADJfp', 'V--PR DETmp NCmp ADV-- ADJmp CONJ-- ADJmp',
+    'V--PR DETms NCms ADJms CONJ-- ADV-- ADJms', 'V--PR DETfs NCfs ADJfs CONJ-- ADV-- ADJfs',
+    'V--PR DETfp NCfp ADJfp CONJ-- ADV-- ADJfp', 'V--PR DETmp NCmp ADJmp CONJ-- ADV-- ADJmp',
+    'V--PR DETms NCms ADV-- ADJms CONJ-- ADV-- ADJms', 
+    'V--PR DETfs NCfs ADV-- ADJfs CONJ-- ADV-- ADJfs',
+    'V--PR DETfp NCfp ADV-- ADJfp CONJ-- ADV-- ADJfp', 
+    'V--PR DETmp NCmp ADV-- ADJmp CONJ-- ADV-- ADJmp',
     # à bon et juste compte, sans réelle et claire motivation,
     # avec sincères et forts remerciements, sauf justes et nobles causes
     'PREP-- ADJms CONJ-- ADJms NCms', 'PREP-- ADJfs CONJ-- ADJfs NCfs',
@@ -138,10 +145,14 @@ sp7Modehles = (
     'PREP-- ADV-- ADJfp CONJ-- ADJfp NCfp', 'PREP-- ADV-- ADJmp CONJ-- ADJmp NCmp',
     'PREP-- ADJms CONJ-- ADV-- ADJms NCms', 'PREP-- ADJfs CONJ-- ADV-- ADJfs NCfs',
     'PREP-- ADJfp CONJ-- ADV-- ADJfp NCfp', 'PREP-- ADJmp CONJ-- ADV-- ADJmp NCmp',
-    'PREP-- ADV-- ADJms CONJ-- ADV-- ADJms NCms', 'PREP-- ADV-- ADJfs CONJ-- ADV-- ADJfs NCfs',
-    'PREP-- ADV-- ADJfp CONJ-- ADV-- ADJfp NCfp', 'PREP-- ADV-- ADJmp CONJ-- ADV-- ADJmp NCmp',
+    'PREP-- ADV-- ADJms CONJ-- ADV-- ADJms NCms', 
+    'PREP-- ADV-- ADJfs CONJ-- ADV-- ADJfs NCfs',
+    'PREP-- ADV-- ADJfp CONJ-- ADV-- ADJfp NCfp', 
+    'PREP-- ADV-- ADJmp CONJ-- ADV-- ADJmp NCmp',
     # en tombant
     'PREP-- V--PR',
+    # pour pouvoir
+    'PREP-- V--IN',
     # est arrivée
     #'V-sCJ ADJms', 'V-pCJ ADJmp', 'V-sCJ ADJfs', 'V-pCJ ADJfp'
     # elle est arrivée

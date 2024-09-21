@@ -74,6 +74,20 @@ def substitue(texteOuNomFichier, racine, dejcalage):
     sp7Cryption.close()
     
 ################################################################
+BLEU = "\033[1;34m"
+BLEUBLEU = "\033[1;94m"
+MAGENTA = "\033[1;35m"
+ROUGE = "\033[1;31m"
+CYAN = "\033[1;36m"
+NORMAL = "\033[m"
+GRIS = "\033[47m"
+JAUNE = "\033[43m"
+BLANC = "\033[107m"
+BLEU_SUBS = "\033[1;4;34m"
+BLEU_GENR = "\033[1;3;34m"
+ROUGE_SUBS = "\033[1;4;31m"
+ROUGE_GENR = "\033[1;3;31m"
+################################################################
 txtMacro = {L_ADJ : "ADJ", L_ADV : "ADV", L_CONJ : "CONJ", L_DET : "DET", 
             L_NC : "NC", L_NP : "NP", L_PREP : "PREP", L_PRON : "PRON", L_V : "V"}
 txt = {0 : "-", MASCULIN : "m", FEJMININ : "f", SINGULIER : "s", PLURIEL : "p", 
@@ -104,7 +118,7 @@ class Sp7Cryption:
         return phraseSubs
         
     ################################
-    def cryptage(self, phrase, dejcalage):
+    def cryptage(self, phrase, dejcalage, trace='Z'):
         # remplace les apostrophes bizarres
         phrase = phrase.replace('’', "'").replace('‘', "'")
         # si pas de dejcalage, raf
@@ -142,6 +156,7 @@ class Sp7Cryption:
                 phraseEjtiqueteje[-1][3][ejtiquette] = identifiantLemme
             ejtiquettes = list(phraseEjtiqueteje[-1][3].keys())
             phraseEjtiqueteje[-1][2] = ejtiquettes
+        if trace in 'E': print (f'\n{NORMAL}phraseEjtiqueteje1={phraseEjtiqueteje}{NORMAL}')
         #####
         # 2) invalide les NCxx interdits et les NCxx commencant par une majuscule
         for idxMot in range(len(phraseEjtiqueteje)):
@@ -152,6 +167,15 @@ class Sp7Cryption:
             for ejtiquette in ejtiquettes: 
                 if not ejtiquette.startswith('NC'): nouvelleEjtiquettes.append(ejtiquette)
             phraseEjtiqueteje[idxMot][2] = nouvelleEjtiquettes
+        if trace in 'E': 
+            print (f'{GRIS}phraseEjtiqueteje2={phraseEjtiqueteje}{NORMAL}')
+            # affiche la phrase ejtiqueteje en plus clair        
+            affichageEjtiquetej = ""
+            for (mot, index, ejtiquettes, ejtiqlemmes, choix) in phraseEjtiqueteje:
+                affichageEjtiquetej += f'{BLEU}{mot}{NORMAL} ' + ' '.join(ejtiquettes) + ' '
+                for (ejtiq, identLemme) in ejtiqlemmes.items():
+                    affichageEjtiquetej += f'({ejtiq} : {identLemme}) '
+            print(f'affichageEjtiquetej={affichageEjtiquetej}')        
         #####
         # 3) Essaie tous les modehles ah partir de chaque mot
         modehlesOk = []
@@ -166,6 +190,7 @@ class Sp7Cryption:
                     # si arrivej au bout du modehle, c'est gagnej !
                     if idxMod == len(modehle) -1:  
                         modehlesOk.append((modehle, idx1erMot))
+        if trace in ('DE'): print(f'{GRIS}modehlesOk1={modehlesOk}{NORMAL}')
         #####
         # 4) fait le mejnage dans les modehles
         aEffacer = []
@@ -179,9 +204,11 @@ class Sp7Cryption:
                     aEffacer.append((modehleB, idx1erMotB))
                 elif idx1erMotB <= idx1erMotA and idx1erMotB + len(modehleB) >= idx1erMotA + len(modehleA):
                     aEffacer.append((modehleA, idx1erMotA))
+        if trace in ('DE'): print(f'{NORMAL}aEffacer={aEffacer}{NORMAL}')
         for numEffacej in aEffacer: 
             if numEffacej in modehlesOk: modehlesOk.remove(numEffacej)
-        # garde uniquement le dernier des superposables
+        if trace in ('DE'): print(f'{GRIS}modehlesOk2={modehlesOk}{NORMAL}')
+       # garde uniquement le dernier des superposables
         if len(modehlesOk) != 0:
             aEffacer = []
             (modehleA, idx1erMotA) = modehlesOk[0]
@@ -191,6 +218,16 @@ class Sp7Cryption:
                 (modehleA, idx1erMotA) = (modehleB, idx1erMotB)
             for numEffacej in aEffacer: 
                 if numEffacej in modehlesOk: modehlesOk.remove(numEffacej)
+        #####
+        if trace in ('DE'): 
+            print(f'{NORMAL}modehlesOk3={modehlesOk}{NORMAL}')
+            # vejrifie les chevauchements
+            for (modehleA, idx1erMotA) in modehlesOk:
+                for (modehleB, idx1erMotB) in modehlesOk:
+                    if idx1erMotB > idx1erMotA and idx1erMotB < idx1erMotA + len(modehleA):
+                        print('CHEVAUCHEMENT :', (modehleA, idx1erMotA), (modehleB, idx1erMotB))
+                    if idx1erMotB + len(modehleB) > idx1erMotA and idx1erMotB + len(modehleB) < idx1erMotA + len(modehleA):
+                        print('CHEVAUCHEMENT :', (modehleA, idx1erMotA), (modehleB, idx1erMotB))
         #####
         # 5) ejtablit le plan de substitution
         substantifs = []
@@ -205,7 +242,27 @@ class Sp7Cryption:
                 if modehle[idxMod][-2:-1] in ('f', 'm'): numsGenre.append(idx1erMot + idxMod)
             if avecNC: substantifs.append((numSubs, numsGenre))
         #####
+        if trace in ('CDE'): print(f'{GRIS}substantifs={substantifs}{NORMAL}')
+        if trace in ('CDE'): print(f'{NORMAL}phraseEjtiqueteje={phraseEjtiqueteje}{NORMAL}')        
+        if trace in ('BCDE'):
+            # affiche phrase analyseje
+            phraseCouleur = phrase
+            coulSubs = [ROUGE_SUBS, BLEU_SUBS]
+            coulGenr = [ROUGE_GENR, BLEU_GENR]
+            nbSubst = 0
+            for (numSubs, numsGenre) in substantifs[::-1]:
+                nbSubst +=1
+                for numMot in numsGenre[::-1]:
+                    mot = phraseEjtiqueteje[numMot][0]
+                    if numMot == numSubs: couleur = coulSubs[nbSubst%2]
+                    else: couleur = coulGenr[nbSubst%2]
+                    indexMot = phraseEjtiqueteje[numMot][1]
+                    nouveauMot = f'{couleur}{mot}{NORMAL}'
+                    phraseCouleur = phraseCouleur[:indexMot] + phraseCouleur[indexMot:].replace(mot, nouveauMot, 1)
+            print(phraseCouleur)
+        #####
         # 6) substitution des NC
+        if trace in ('BCDE'): phraseCouleur = phrase
         phraseSubs = phrase
         for (numSubs, numsGenre) in substantifs[::-1]:
             # le NC d'origine
@@ -220,6 +277,9 @@ class Sp7Cryption:
             nouveauNC = mesmeCasse(ancienNC, nouveauNC)
             indexMot = phraseEjtiqueteje[numSubs][1]
             phraseSubs = phraseSubs[:indexMot] + phraseSubs[indexMot:].replace(ancienNC, nouveauNC, 1)
+            if trace in ('BCDE'):
+                phraseCouleur = phraseCouleur[:indexMot] + phraseCouleur[indexMot:].replace(ancienNC, f'{BLEU}{nouveauNC}{NORMAL}', 1)
+        if trace in ('BCDE'): print(phraseCouleur)
         return phraseSubs
     
     ################################
