@@ -42,15 +42,6 @@ sp7Modehles = (
     'CONJ-- ADJms NCms', 'CONJ-- ADJfs NCfs', 'CONJ-- ADJfp NCfp', 'CONJ-- ADJmp NCmp',
     'CONJ-- ADV-- ADJms NCms', 'CONJ-- ADV-- ADJfs NCfs', 
     'CONJ-- ADV-- ADJfp NCfp', 'CONJ-- ADV-- ADJmp NCmp',
-    # le garçon poli, une fille polie, leurs femmes puissantes, des hommes vieux
-    'DETms NCms ADJms', 'DETfs NCfs ADJfs', 'DETfp NCfp ADJfp', 'DETmp NCmp ADJmp',
-    'DETms NCms ADV-- ADJms', 'DETfs NCfs ADV-- ADJfs', 
-    'DETfp NCfp ADV-- ADJfp', 'DETmp NCmp ADV-- ADJmp',
-    # puisque le but principal
-    'CONJ-- DETms NCms ADJms', 'CONJ-- DETfs NCfs ADJfs', 
-    'CONJ-- DETfp NCfp ADJfp', 'CONJ-- DETmp NCmp ADJmp',
-    'CONJ-- DETms NCms ADV-- ADJms', 'CONJ-- DETfs NCfs ADV-- ADJfs', 
-    'CONJ-- DETfp NCfp ADV-- ADJfp', 'CONJ-- DETmp NCmp ADV-- ADJmp',
     # le joli garçon, une jolie fille, dix vieilles femmes, des pauvres hommes
     'DETms ADJms NCms', 'DETfs ADJfs NCfs', 'DETfp ADJfp NCfp', 'DETmp ADJmp NCmp',
     'DETms ADV-- ADJms NCms', 'DETfs ADV-- ADJfs NCfs', 
@@ -60,6 +51,15 @@ sp7Modehles = (
     'CONJ-- DETfp ADJfp NCfp', 'CONJ-- DETmp ADJmp NCmp',
     'CONJ-- DETms ADV-- ADJms NCms', 'CONJ-- DETfs ADV-- ADJfs NCfs', 
     'CONJ-- DETfp ADV-- ADJfp NCfp', 'CONJ-- DETmp ADV-- ADJmp NCmp',
+    # le garçon poli, une fille polie, leurs femmes puissantes, des hommes vieux
+    'DETms NCms ADJms', 'DETfs NCfs ADJfs', 'DETfp NCfp ADJfp', 'DETmp NCmp ADJmp',
+    'DETms NCms ADV-- ADJms', 'DETfs NCfs ADV-- ADJfs', 
+    'DETfp NCfp ADV-- ADJfp', 'DETmp NCmp ADV-- ADJmp',
+    # puisque le but principal
+    'CONJ-- DETms NCms ADJms', 'CONJ-- DETfs NCfs ADJfs', 
+    'CONJ-- DETfp NCfp ADJfp', 'CONJ-- DETmp NCmp ADJmp',
+    'CONJ-- DETms NCms ADV-- ADJms', 'CONJ-- DETfs NCfs ADV-- ADJfs', 
+    'CONJ-- DETfp NCfp ADV-- ADJfp', 'CONJ-- DETmp NCmp ADV-- ADJmp',
     # contenant le flacon vide, ...
     'V--PR DETms NCms ADJms', 'V--PR DETfs NCfs ADJfs', 
     'V--PR DETfp NCfp ADJfp', 'V--PR DETmp NCmp ADJmp',
