@@ -128,11 +128,17 @@ class Sp7Cryption:
         if phrase2 == '': return phrase
         # double les apostrophes par des espaces
         phrase2 = phrase2.replace("'", "' ")
+        # double les pints et points virgules parenthèses par des espaces
+        phrase2 = phrase2.replace(".", " . ")
+        phrase2 = phrase2.replace(";", " ; ")
+        phrase2 = phrase2.replace("(", " ( ")
+        phrase2 = phrase2.replace(")", " ) ")
         # Ejtiquette la phrase
         phraseEjtiqueteje = []
         #####
         # 1) sejpare tous les mots du texte par espaces, points et apostrophes, pas les tirets
-        mots = re.split("\s+|\"|\.+|\(|\)|;|,", phrase2)
+        #mots = re.split("\s+|\"|\.+|\(|\)|;|,", phrase2)
+        mots = re.split("\s+|\"|,", phrase2)
         indexDansPhrase = 0
         for mot in mots:
             mot = mot.strip()

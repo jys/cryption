@@ -46,10 +46,20 @@ sp7Modehles = (
     'DETms NCms ADJms', 'DETfs NCfs ADJfs', 'DETfp NCfp ADJfp', 'DETmp NCmp ADJmp',
     'DETms NCms ADV-- ADJms', 'DETfs NCfs ADV-- ADJfs', 
     'DETfp NCfp ADV-- ADJfp', 'DETmp NCmp ADV-- ADJmp',
+    # puisque le but principal
+    'CONJ-- DETms NCms ADJms', 'CONJ-- DETfs NCfs ADJfs', 
+    'CONJ-- DETfp NCfp ADJfp', 'CONJ-- DETmp NCmp ADJmp',
+    'CONJ-- DETms NCms ADV-- ADJms', 'CONJ-- DETfs NCfs ADV-- ADJfs', 
+    'CONJ-- DETfp NCfp ADV-- ADJfp', 'CONJ-- DETmp NCmp ADV-- ADJmp',
     # le joli garçon, une jolie fille, dix vieilles femmes, des pauvres hommes
     'DETms ADJms NCms', 'DETfs ADJfs NCfs', 'DETfp ADJfp NCfp', 'DETmp ADJmp NCmp',
     'DETms ADV-- ADJms NCms', 'DETfs ADV-- ADJfs NCfs', 
     'DETfp ADV-- ADJfp NCfp', 'DETmp ADV-- ADJmp NCmp',
+    # puisque le principal but
+    'CONJ-- DETms ADJms NCms', 'CONJ-- DETfs ADJfs NCfs', 
+    'CONJ-- DETfp ADJfp NCfp', 'CONJ-- DETmp ADJmp NCmp',
+    'CONJ-- DETms ADV-- ADJms NCms', 'CONJ-- DETfs ADV-- ADJfs NCfs', 
+    'CONJ-- DETfp ADV-- ADJfp NCfp', 'CONJ-- DETmp ADV-- ADJmp NCmp',
     # contenant le flacon vide, ...
     'V--PR DETms NCms ADJms', 'V--PR DETfs NCfs ADJfs', 
     'V--PR DETfp NCfp ADJfp', 'V--PR DETmp NCmp ADJmp',
