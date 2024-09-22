@@ -200,9 +200,9 @@ if ejtat == 'enSaisie':
     print('<div id="af1">')
     print('<p class="mi2" style="margin-bottom: 0px"> Entrez ou copiez ci-dessous le menu propos à quasi-encrypter ou le message à quasi-dejcrypter<br/></p>')
     print('<p class="ta23"><input type="submit" name="soumettre" value="soumettre" style="font-size: 16pt"/> le menu propos</p>')
-    print(f'<textarea class="ta1" name="texteSaisi">{menuPropos}</textarea><br/>')
+    print(f'<textarea class="ta1" name="texteSaisi" placeholder="Un menu propos à quasi-encrypter...\n\nou\n\nun texte quasi-crypté à dejcrypter...">{menuPropos}</textarea><br/>')
     print('<p class="mi2"> En cas de quasi-dejcryptage, entrez la clef idoine <br/></p>')
-    print(f'<textarea class="ta11" name="clefSaisie" rows="2">{clefSaisie}</textarea><br/>')
+    print(f'<textarea class="ta11" name="clefSaisie" rows="2" placeholder="««« ...  »»»">{clefSaisie}</textarea><br/>')
     print('<input type="submit" name="soumettre" value="soumettre" style="font-size: 16pt"/> le menu propos')
     print('</div>')
 elif ejtat == 'enCryptage':
