@@ -26,8 +26,8 @@ form = cgi.FieldStorage()
 #if path.abspath(path.curdir).endswith('jys/Boa/Splus7'): ressources = 'ressources/'     #local
 #else: ressources = '../ressources/'               # canap de Dom
 ressources = 'ressources/'      # cas gejnejral
-if not os.path.isdir(ressources): ressources = '../ressources/' # canap de Dom
-if not os.path.isdir(ressources): print("PAS DE RESSOURCES !!")
+if not path.isdir(ressources): ressources = '../ressources/' # canap de Dom
+if not path.isdir(ressources): print("PAS DE RESSOURCES !!")
 
 # les versions de ressources
 # 0:nula, 1:unu, 2:du, 3:tri, 4:kvar, 5:kvin, 6:ses, 7:sep, 8:ok, 9:naŭ, 10:dek
