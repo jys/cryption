@@ -114,18 +114,18 @@ sp7Modehles = (
     # pour tout le jour, dans toute une semaine, comme toutes les semaines, de tous les jours
     'PREP-- DETms DETms NCms', 'PREP-- DETfs DETfs NCfs', 
     'PREP-- DETfp DETfp NCfp', 'PREP-- DETmp DETmp NCmp',
-    # pour le jour entier, comme la semaine dernière, 
-    # sauf les semaines paires, entre plusieurs jours singuliers
-    'PREP-- DETms NCms ADJms', 'PREP-- DETfs NCfs ADJfs', 
-    'PREP-- DETfp NCfp ADJfp', 'PREP-- DETmp NCmp ADJmp',
-    'PREP-- DETms NCms ADV-- ADJms', 'PREP-- DETfs NCfs ADV-- ADJfs', 
-    'PREP-- DETfp NCfp ADV-- ADJfp', 'PREP-- DETmp NCmp ADV-- ADJmp',
     # pour le même jour, comme la merveilleuse semaine, 
     # sauf les pauvres femmes, entre plusieurs éminents spécialistes
     'PREP-- DETms ADJms NCms', 'PREP-- DETfs ADJfs NCfs',
     'PREP-- DETfp ADJfp NCfp', 'PREP-- DETmp ADJmp NCmp',
     'PREP-- DETms ADV-- ADJms NCms', 'PREP-- DETfs ADV-- ADJfs NCfs',
     'PREP-- DETfp ADV-- ADJfp NCfp', 'PREP-- DETmp ADV-- ADJmp NCmp',
+    # pour le jour entier, comme la semaine dernière, 
+    # sauf les semaines paires, entre plusieurs jours singuliers
+    'PREP-- DETms NCms ADJms', 'PREP-- DETfs NCfs ADJfs', 
+    'PREP-- DETfp NCfp ADJfp', 'PREP-- DETmp NCmp ADJmp',
+    'PREP-- DETms NCms ADV-- ADJms', 'PREP-- DETfs NCfs ADV-- ADJfs', 
+    'PREP-- DETfp NCfp ADV-- ADJfp', 'PREP-- DETmp NCmp ADV-- ADJmp',
     # le mari vieux et trompé, une femme jeune mais frivole,
     # plusieurs filles éméchées donc hilares, des universitaires tristes puisque sérieux
     'DETms NCms ADJms CONJ-- ADJms', 'DETfs NCfs ADJfs CONJ-- ADJfs',
